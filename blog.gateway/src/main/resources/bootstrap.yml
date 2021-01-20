@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: blog-gateway
+  cloud:
+    nacos:
+      config:
+        namespace: blog
+        file-extension: yml
+        server-addr: 192.168.236.1:8848
+      discovery:
+        namespace: blog
+        server-addr: 192.168.236.1:8848
