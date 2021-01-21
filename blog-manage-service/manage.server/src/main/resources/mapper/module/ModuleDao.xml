@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zlz.blog.server.module.mapper.ModuleMapper">
+  <resultMap id="BaseResultMap" type="com.zlz.blog.common.entity.module.Module">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="introduction" jdbcType="VARCHAR" property="introduction" />
+    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+    <result column="is_publish" jdbcType="BOOLEAN" property="isPublish" />
+    <result column="creator" jdbcType="BIGINT" property="creator" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_modifier" jdbcType="BIGINT" property="lastModifier" />
+    <result column="last_modified_time" jdbcType="TIMESTAMP" property="lastModifiedTime" />
+    <collection property="menus" column="id" select="selectMenuBlog"/>
+  </resultMap>
+
+  <resultMap id="ModuleMenuResultMap" type="com.zlz.blog.common.entity.module.ModuleMenu">
+    <id column="mm_id" property="id"/>
+    <result column="mm_module_id" property="moduleId"/>
+    <result column="mm_name" property="name"/>
+    <collection property="blogList" ofType="com.zlz.blog.common.entity.module.ModuleMenuBlog">
+      <id column="mmb_id" property="id"/>
+      <result column="mmb_module_menu_id" property="moduleMenuId"/>
+      <result column="mmb_blog_id" property="blogId"/>
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, title, introduction, image_url, is_publish, creator, created_time, last_modifier, 
+    last_modified_time
+  </sql>
+
+  <select id="selectPage" resultMap="BaseResultMap">
+    SELECT
+        <include refid="Base_Column_List"></include>
+    FROM module m
+    <where>
+      <if test="null != module and null != module.title">
+        AND m.title LIKE CONCAT("%",#{module.title},"%")
+     </if>
+      <if test="null != module and null != module.introduction">
+        AND m.introduction LIKE CONCAT("%",#{module.introduction},"%")
+      </if>
+    </where>
+
+  </select>
+
+  <select id="selectMenuBlog" resultMap="ModuleMenuResultMap">
+    SELECT
+        mm.id as mm_id,
+        mm.name as mm_name,
+        mm.module_id as mm_module_id,
+        mmb.id as mmb_id,
+        mmb.module_menu_id as mmb_module_menu_id,
+        mmb.blog_id as mmb_blog_id
+    FROM module_menu mm
+    LEFT JOIN module_menu_blog mmb
+    ON mm.id = mmb.module_menu_id
+    WHERE mm.module_id = #{moduleId}
+  </select>
+</mapper>

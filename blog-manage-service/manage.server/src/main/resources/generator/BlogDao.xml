@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="generate.BlogDao">
+  <resultMap id="BaseResultMap" type="generate.Blog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="summary" jdbcType="VARCHAR" property="summary" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="provenance" jdbcType="TINYINT" property="provenance" />
+    <result column="visible_strategy" jdbcType="TINYINT" property="visibleStrategy" />
+    <result column="img_src" jdbcType="VARCHAR" property="imgSrc" />
+    <result column="is_show" jdbcType="TINYINT" property="isShow" />
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+    <result column="creator" jdbcType="BIGINT" property="creator" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_modifier" jdbcType="BIGINT" property="lastModifier" />
+    <result column="last_modified_time" jdbcType="TIMESTAMP" property="lastModifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, title, summary, author, provenance, visible_strategy, img_src, is_show, 
+    is_deleted, creator, created_time, last_modifier, last_modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from blog
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from blog
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="generate.Blog" useGeneratedKeys="true">
+    insert into blog (user_id, title, summary, 
+      author, provenance, visible_strategy, 
+      img_src, is_show, is_deleted, 
+      creator, created_time, last_modifier, 
+      last_modified_time)
+    values (#{userId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, 
+      #{author,jdbcType=VARCHAR}, #{provenance,jdbcType=TINYINT}, #{visibleStrategy,jdbcType=TINYINT}, 
+      #{imgSrc,jdbcType=VARCHAR}, #{isShow,jdbcType=TINYINT}, #{isDeleted,jdbcType=TINYINT}, 
+      #{creator,jdbcType=BIGINT}, #{createdTime,jdbcType=TIMESTAMP}, #{lastModifier,jdbcType=BIGINT}, 
+      #{lastModifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="generate.Blog" useGeneratedKeys="true">
+    insert into blog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="summary != null">
+        summary,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="provenance != null">
+        provenance,
+      </if>
+      <if test="visibleStrategy != null">
+        visible_strategy,
+      </if>
+      <if test="imgSrc != null">
+        img_src,
+      </if>
+      <if test="isShow != null">
+        is_show,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+      <if test="lastModifier != null">
+        last_modifier,
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="summary != null">
+        #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="provenance != null">
+        #{provenance,jdbcType=TINYINT},
+      </if>
+      <if test="visibleStrategy != null">
+        #{visibleStrategy,jdbcType=TINYINT},
+      </if>
+      <if test="imgSrc != null">
+        #{imgSrc,jdbcType=VARCHAR},
+      </if>
+      <if test="isShow != null">
+        #{isShow,jdbcType=TINYINT},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifier != null">
+        #{lastModifier,jdbcType=BIGINT},
+      </if>
+      <if test="lastModifiedTime != null">
+        #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="generate.Blog">
+    update blog
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="summary != null">
+        summary = #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="provenance != null">
+        provenance = #{provenance,jdbcType=TINYINT},
+      </if>
+      <if test="visibleStrategy != null">
+        visible_strategy = #{visibleStrategy,jdbcType=TINYINT},
+      </if>
+      <if test="imgSrc != null">
+        img_src = #{imgSrc,jdbcType=VARCHAR},
+      </if>
+      <if test="isShow != null">
+        is_show = #{isShow,jdbcType=TINYINT},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifier != null">
+        last_modifier = #{lastModifier,jdbcType=BIGINT},
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="generate.Blog">
+    update blog
+    set user_id = #{userId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      summary = #{summary,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      provenance = #{provenance,jdbcType=TINYINT},
+      visible_strategy = #{visibleStrategy,jdbcType=TINYINT},
+      img_src = #{imgSrc,jdbcType=VARCHAR},
+      is_show = #{isShow,jdbcType=TINYINT},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      creator = #{creator,jdbcType=BIGINT},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      last_modifier = #{lastModifier,jdbcType=BIGINT},
+      last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zlz.blog.server.user.mapper.AuthenticationMapper">
+
+  <resultMap id="SysRoleResult" type="com.zlz.blog.common.entity.user.SysRole">
+    <id column="sr_id" property="id"/>
+    <result column="sr_parent_id" property="parentId"/>
+    <result column="sr_role" property="role"/>
+    <result column="sr_ename" property="ename"/>
+    <result column="sr_parent_id" property="description"/>
+    <collection property="sysPermissions" resultMap="SysPermissionResult"/>
+  </resultMap>
+
+  <resultMap id="SysPermissionResult" type="com.zlz.blog.common.entity.user.SysPermission">
+    <id column="sp_id" property="id"/>
+    <result column="sp_parent_id" property="parentId"/>
+    <result column="sp_permission" property="permission"/>
+    <result column="sp_ename" property="ename"/>
+    <result column="sp_url" property="url"/>
+    <result column="sp_description" property="description"/>
+  </resultMap>
+
+  <select id="getAuthenticationInfo" resultMap="SysRoleResult">
+    SELECT
+      sr.id as sr_id,
+      sr.parent_id as sr_parent_id,
+      sr.role as sr_role,
+      sr.ename as sr_ename,
+      sr.description as sr_description,
+      sp.id as sp_id,
+      sp.parent_id as sp_parent_id,
+      sp.permission as sp_permission,
+      sp.url as sp_url,
+      sp.ename as sp_ename,
+      sp.description as sp_description
+    FROM sys_user_role sur
+    LEFT JOIN sys_role sr
+        ON sur.role_id = sr.id
+    LEFT JOIN sys_role_permission srp
+        ON sr.id = srp.role_id
+    LEFT JOIN sys_permission sp
+        ON srp.permission_id = sp.id
+    WHERE sur.user_id = #{userId}
+  </select>
+</mapper>

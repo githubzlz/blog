@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="generate.TagTypeDao">
+  <resultMap id="BaseResultMap" type="generate.TagType">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type_name" jdbcType="VARCHAR" property="typeName" />
+    <result column="state" jdbcType="BOOLEAN" property="state" />
+    <result column="creator" jdbcType="BIGINT" property="creator" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_modifier" jdbcType="BIGINT" property="lastModifier" />
+    <result column="last_modified_time" jdbcType="TIMESTAMP" property="lastModifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_name, `state`, creator, created_time, last_modifier, last_modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tag_type
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tag_type
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="generate.TagType" useGeneratedKeys="true">
+    insert into tag_type (type_name, `state`, creator, 
+      created_time, last_modifier, last_modified_time
+      )
+    values (#{typeName,jdbcType=VARCHAR}, #{state,jdbcType=BOOLEAN}, #{creator,jdbcType=BIGINT}, 
+      #{createdTime,jdbcType=TIMESTAMP}, #{lastModifier,jdbcType=BIGINT}, #{lastModifiedTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="generate.TagType" useGeneratedKeys="true">
+    insert into tag_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeName != null">
+        type_name,
+      </if>
+      <if test="state != null">
+        `state`,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+      <if test="lastModifier != null">
+        last_modifier,
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeName != null">
+        #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=BOOLEAN},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifier != null">
+        #{lastModifier,jdbcType=BIGINT},
+      </if>
+      <if test="lastModifiedTime != null">
+        #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="generate.TagType">
+    update tag_type
+    <set>
+      <if test="typeName != null">
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        `state` = #{state,jdbcType=BOOLEAN},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifier != null">
+        last_modifier = #{lastModifier,jdbcType=BIGINT},
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="generate.TagType">
+    update tag_type
+    set type_name = #{typeName,jdbcType=VARCHAR},
+      `state` = #{state,jdbcType=BOOLEAN},
+      creator = #{creator,jdbcType=BIGINT},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      last_modifier = #{lastModifier,jdbcType=BIGINT},
+      last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

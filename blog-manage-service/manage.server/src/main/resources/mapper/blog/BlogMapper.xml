@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zlz.blog.server.blog.mapper.BlogMapper">
+  <resultMap id="BaseResultMap" type="com.zlz.blog.common.entity.blog.Blog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="summary" jdbcType="VARCHAR" property="summary" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="provenance" jdbcType="TINYINT" property="provenance" />
+    <result column="visible_strategy" jdbcType="TINYINT" property="visibleStrategy" />
+    <result column="img_src" jdbcType="VARCHAR" property="imgSrc" />
+    <result column="is_show" jdbcType="TINYINT" property="isShow" />
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted" />
+    <result column="creator" jdbcType="BIGINT" property="creator" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_modifier" jdbcType="BIGINT" property="lastModifier" />
+    <result column="last_modified_time" jdbcType="TIMESTAMP" property="lastModifiedTime" />
+    <association property="blogContent" javaType="com.zlz.blog.common.entity.blog.BlogContent">
+      <id property="id" column="content_id"/>
+      <result property="blogId" column="content_blog_id"/>
+      <result property="contentHtml" column="content_content_html"/>
+      <result property="contentMd" column="content_content_md"/>
+      <result property="htmlSize" column="content_html_size"/>
+      <result property="mdSize" column="content_md_size"/>
+    </association>
+    <association property="blogStatistics" javaType="com.zlz.blog.common.entity.blog.BlogStatistics">
+      <id property="id" column="sta_id"/>
+      <result property="blogId" column="sta_blog_id"/>
+      <result property="stars" column="sta_stars"/>
+      <result property="goods" column="sta_goods"/>
+      <result property="comments" column="sta_comments"/>
+      <result property="readings" column="sta_readings"/>
+      <result property="collect" column="sta_collect"/>
+    </association>
+    <collection property="tags" select="selectBlogTag" column="id"/>
+  </resultMap>
+  <sql id="Base_Column_Blog">
+    blog.id,
+    blog.user_id,
+    blog.title,
+    blog.summary,
+    blog.author,
+    blog.provenance,
+    blog.visible_strategy,
+    blog.img_src,
+    blog.is_deleted,
+    blog.is_show,
+    blog.created_time,
+    blog.creator
+  </sql>
+  <sql id="Base_Column_Content">
+    content.id as content_id,
+    content.blog_id as content_blog_id,
+    content.content_html as content_content_html,
+    content.content_md as content_content_md,
+    content.html_size as content_html_size,
+    content.md_size as content_md_size
+  </sql>
+  <sql id="Base_Column_Statistics">
+    sta.id as sta_id,
+    sta.blog_id as sta_blog_id,
+    sta.stars as sta_stars,
+    sta.goods as sta_goods,
+    sta.comments as sta_comments,
+    sta.readings as sta_readings,
+    sta.collect as sta_collect
+  </sql>
+  <select id="selectDetailById" resultMap="BaseResultMap">
+    SELECT
+        <include refid="Base_Column_Blog" />,
+        <include refid="Base_Column_Content"/>,
+        <include refid="Base_Column_Statistics"/>
+    FROM blog
+    LEFT JOIN blog_content content
+    ON blog.id = content.blog_id
+    LEFT JOIN blog_statistics sta
+    ON blog.id = sta.blog_id
+    WHERE blog.id = #{id} AND blog.creator = #{userId}
+  </select>
+  <select id="selectPage" resultMap="BaseResultMap">
+    SELECT
+      <include refid="Base_Column_Blog" />,
+      <include refid="Base_Column_Content"/>,
+      <include refid="Base_Column_Statistics"/>
+    FROM blog blog
+    LEFT JOIN blog_content content
+    ON blog.id = content.blog_id
+    LEFT JOIN blog_statistics sta
+    ON blog.id = sta.blog_id
+    <where>
+      <if test="blog.pageInfo != null and blog.pageInfo.exclude != null">
+        <foreach collection="blog.pageInfo.exclude" item="item">
+          AND ${item.column} = #{item.value}
+        </foreach>
+      </if>
+      <if test="null != blog.title and '' != blog.title">
+        AND (
+        blog.title like concat('%',#{blog.title},'%')
+        OR blog.summary like concat('%',#{blog.title},'%')
+        )
+      </if>
+      <if test="null != blog.blogContent">
+        <if test="null != blog.blogContent.contentMd and '' != blog.blogContent.contentMd">
+          AND content.content_md like concat('%',#{blog.blogContent.contentMd},'%')
+        </if>
+      </if>
+      AND blog.creator = #{blog.userId}
+    </where>
+  </select>
+
+  <update id="revokeDelete">
+    UPDATE blog SET is_deleted = 0 WHERE id = #{id} AND is_deleted = 1;
+  </update>
+
+  <select id="selectBlogTag" resultType="java.lang.String">
+    SELECT
+       tag.name
+    FROM blog_tag tagi
+    LEFT JOIN tag tag
+    ON tagi.tag_id = tag.id AND tag.state = 1
+    WHERE tagi.blog_id = #{id}
+  </select>
+</mapper>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="generate.WebStatisticsDao">
+  <resultMap id="BaseResultMap" type="generate.WebStatistics">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="pv_today" jdbcType="BIGINT" property="pvToday" />
+    <result column="reading_today" jdbcType="BIGINT" property="readingToday" />
+    <result column="blog_today" jdbcType="BIGINT" property="blogToday" />
+    <result column="user_today" jdbcType="BIGINT" property="userToday" />
+    <result column="message_today" jdbcType="BIGINT" property="messageToday" />
+    <result column="pv_total" jdbcType="BIGINT" property="pvTotal" />
+    <result column="reading_total" jdbcType="BIGINT" property="readingTotal" />
+    <result column="blog_total" jdbcType="BIGINT" property="blogTotal" />
+    <result column="user_total" jdbcType="BIGINT" property="userTotal" />
+    <result column="message_total" jdbcType="BIGINT" property="messageTotal" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_modified_time" jdbcType="TIMESTAMP" property="lastModifiedTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, `date`, pv_today, reading_today, blog_today, user_today, message_today, pv_total, 
+    reading_total, blog_total, user_total, message_total, created_time, last_modified_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="generate.WebStatisticsKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from web_statistics
+    where id = #{id,jdbcType=BIGINT}
+      and `date` = #{date,jdbcType=TIMESTAMP}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="generate.WebStatisticsKey">
+    delete from web_statistics
+    where id = #{id,jdbcType=BIGINT}
+      and `date` = #{date,jdbcType=TIMESTAMP}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="generate.WebStatistics" useGeneratedKeys="true">
+    insert into web_statistics (`date`, pv_today, reading_today, 
+      blog_today, user_today, message_today, 
+      pv_total, reading_total, blog_total, 
+      user_total, message_total, created_time, 
+      last_modified_time)
+    values (#{date,jdbcType=TIMESTAMP}, #{pvToday,jdbcType=BIGINT}, #{readingToday,jdbcType=BIGINT}, 
+      #{blogToday,jdbcType=BIGINT}, #{userToday,jdbcType=BIGINT}, #{messageToday,jdbcType=BIGINT}, 
+      #{pvTotal,jdbcType=BIGINT}, #{readingTotal,jdbcType=BIGINT}, #{blogTotal,jdbcType=BIGINT}, 
+      #{userTotal,jdbcType=BIGINT}, #{messageTotal,jdbcType=BIGINT}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{lastModifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="generate.WebStatistics" useGeneratedKeys="true">
+    insert into web_statistics
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="date != null">
+        `date`,
+      </if>
+      <if test="pvToday != null">
+        pv_today,
+      </if>
+      <if test="readingToday != null">
+        reading_today,
+      </if>
+      <if test="blogToday != null">
+        blog_today,
+      </if>
+      <if test="userToday != null">
+        user_today,
+      </if>
+      <if test="messageToday != null">
+        message_today,
+      </if>
+      <if test="pvTotal != null">
+        pv_total,
+      </if>
+      <if test="readingTotal != null">
+        reading_total,
+      </if>
+      <if test="blogTotal != null">
+        blog_total,
+      </if>
+      <if test="userTotal != null">
+        user_total,
+      </if>
+      <if test="messageTotal != null">
+        message_total,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="date != null">
+        #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pvToday != null">
+        #{pvToday,jdbcType=BIGINT},
+      </if>
+      <if test="readingToday != null">
+        #{readingToday,jdbcType=BIGINT},
+      </if>
+      <if test="blogToday != null">
+        #{blogToday,jdbcType=BIGINT},
+      </if>
+      <if test="userToday != null">
+        #{userToday,jdbcType=BIGINT},
+      </if>
+      <if test="messageToday != null">
+        #{messageToday,jdbcType=BIGINT},
+      </if>
+      <if test="pvTotal != null">
+        #{pvTotal,jdbcType=BIGINT},
+      </if>
+      <if test="readingTotal != null">
+        #{readingTotal,jdbcType=BIGINT},
+      </if>
+      <if test="blogTotal != null">
+        #{blogTotal,jdbcType=BIGINT},
+      </if>
+      <if test="userTotal != null">
+        #{userTotal,jdbcType=BIGINT},
+      </if>
+      <if test="messageTotal != null">
+        #{messageTotal,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifiedTime != null">
+        #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="generate.WebStatistics">
+    update web_statistics
+    <set>
+      <if test="pvToday != null">
+        pv_today = #{pvToday,jdbcType=BIGINT},
+      </if>
+      <if test="readingToday != null">
+        reading_today = #{readingToday,jdbcType=BIGINT},
+      </if>
+      <if test="blogToday != null">
+        blog_today = #{blogToday,jdbcType=BIGINT},
+      </if>
+      <if test="userToday != null">
+        user_today = #{userToday,jdbcType=BIGINT},
+      </if>
+      <if test="messageToday != null">
+        message_today = #{messageToday,jdbcType=BIGINT},
+      </if>
+      <if test="pvTotal != null">
+        pv_total = #{pvTotal,jdbcType=BIGINT},
+      </if>
+      <if test="readingTotal != null">
+        reading_total = #{readingTotal,jdbcType=BIGINT},
+      </if>
+      <if test="blogTotal != null">
+        blog_total = #{blogTotal,jdbcType=BIGINT},
+      </if>
+      <if test="userTotal != null">
+        user_total = #{userTotal,jdbcType=BIGINT},
+      </if>
+      <if test="messageTotal != null">
+        message_total = #{messageTotal,jdbcType=BIGINT},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifiedTime != null">
+        last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+      and `date` = #{date,jdbcType=TIMESTAMP}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="generate.WebStatistics">
+    update web_statistics
+    set pv_today = #{pvToday,jdbcType=BIGINT},
+      reading_today = #{readingToday,jdbcType=BIGINT},
+      blog_today = #{blogToday,jdbcType=BIGINT},
+      user_today = #{userToday,jdbcType=BIGINT},
+      message_today = #{messageToday,jdbcType=BIGINT},
+      pv_total = #{pvTotal,jdbcType=BIGINT},
+      reading_total = #{readingTotal,jdbcType=BIGINT},
+      blog_total = #{blogTotal,jdbcType=BIGINT},
+      user_total = #{userTotal,jdbcType=BIGINT},
+      message_total = #{messageTotal,jdbcType=BIGINT},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      last_modified_time = #{lastModifiedTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+      and `date` = #{date,jdbcType=TIMESTAMP}
+  </update>
+</mapper>
