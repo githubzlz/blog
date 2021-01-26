@@ -42,4 +42,10 @@
         ON srp.permission_id = sp.id
     WHERE sur.user_id = #{userId}
   </select>
+
+  <select id="getAllPermission" resultType="com.zlz.blog.common.entity.user.SysPermission">
+    SELECT
+           ename, url
+    FROM sys_permission
+  </select>
 </mapper>

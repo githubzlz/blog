@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 public class ResourceServerConfig {
 
     @Resource
-    private AuthorizationManager authorizationManager;
+    private final AuthorizationManager authorizationManager;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -42,7 +42,7 @@ public class ResourceServerConfig {
                 .jwtAuthenticationConverter(jwtAuthenticationConverter());
         http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
         http.authorizeExchange()
-                .pathMatchers("/test").permitAll()
+                .pathMatchers("/login/**").permitAll()
                 .anyExchange().access(authorizationManager)
                 .and()
                 .exceptionHandling()

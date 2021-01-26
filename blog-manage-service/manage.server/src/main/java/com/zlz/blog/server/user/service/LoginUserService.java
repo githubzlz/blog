@@ -21,4 +21,5 @@ public interface LoginUserService {
     LoginUser findByEmail(String email);
 
     LoginUser findByUsername(String name);
+
 }

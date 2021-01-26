@@ -98,6 +98,8 @@ public class LoginUserServiceImpl implements LoginUserService {
         return userData;
     }
 
+
+
     private LoginUser setAuthenticationInfo(LoginUser userData){
         // 获权限信息
         List<SysRole> roles = authenticationMapper.getAuthenticationInfo(userData.getId());

@@ -33,7 +33,6 @@ import java.util.*;
 @Slf4j
 public class AuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
-
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
@@ -56,36 +55,60 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         }
 //
         // 从缓存取资源权限角色关系列表
+
+//        List<SysPermission> authorizationList = authorizationListBean.getAuthorizationList();
+
 //        Map<Object, Object> permissionRoles = redisTemplate.opsForHash().entries(AuthConstants.PERMISSION_RULES_KEY);
-        Map<Object, Object> permissionRoles = new HashMap<>();
-        List<String> roles = new ArrayList<>();
-        roles.add("SystemUserInsert");
-        permissionRoles.put("/blog-manage/blog/list",roles);
-        Iterator<Object> iterator = permissionRoles.keySet().iterator();
+        Map<String, List<String>> permissionRoles = new HashMap<>();
+        List<String> sources = new ArrayList<>();
+        sources.add("/show/**");
+        permissionRoles.put("DeleteBlogAll",sources);
+        sources = new ArrayList<>();
+        sources.add("/blog-manage/**");
+        sources.add("/blog/test/**");
+        permissionRoles.put("BlogManagement",sources);
 
-
-        // 请求路径匹配到的资源需要的角色权限集合authorities统计
-        Set<String> authorities = new HashSet<>();
-        while (iterator.hasNext()) {
-            String pattern = (String) iterator.next();
-            if (pathMatcher.match(pattern, path)) {
-                authorities.addAll((List<String>) permissionRoles.get(pattern));
-            }
-        }
-//
-        Mono<AuthorizationDecision> authorizationDecisionMono = mono
+        // 检查改路径是否存在于用户的可访问资源中
+        return mono
                 .filter(Authentication::isAuthenticated)
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
-                .any(roleId -> {
-                    // roleId是请求用户的角色(格式:ROLE_{roleId})，authorities是请求资源所需要角色的集合
-                    log.info("访问路径：{}", path);
-                    log.info("用户角色信息：{}", roleId);
-                    log.info("资源需要权限authorities：{}", "SystemUserInsert");
-                    return authorities.contains(roleId);
+                .any(role -> {
+                    // 根据用户权限获取用户可以通过的资源列表
+                    List<String> strings = permissionRoles.get(role);
+                    System.out.println("角色权限："+ role);
+                    return checkPath(path, strings);
                 })
                 .map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
-        return authorizationDecisionMono;
+    }
+
+    private boolean checkPath(String path, List<String> paths){
+        System.out.println("检查开始：");
+        if(paths == null || paths.isEmpty() || StringUtils.isEmpty(path)){
+            return false;
+        }
+        for (String pPath : paths) {
+            System.out.println("路由："+path+",权限路由："+pPath);
+            if("/**".equals(pPath)){
+                return true;
+            }
+            if(pPath.length() >= 4){
+                // 最后三位为 "/**"
+                String substring = pPath.substring(pPath.length() - 3, pPath.length());
+                if("/**".equals(substring) && path.length() >= pPath.length()-1){
+                    // 检查前面的几位是否匹配
+                    pPath = pPath.substring(0, pPath.length() - 3);
+                    String subPath = path.substring(0, pPath.length());
+                    if(pPath.equals(subPath)){
+                        return true;
+                    }
+                }
+            }
+            if(pPath.equals(path)){
+                return true;
+            }
+        }
+        return false;
     }
 }

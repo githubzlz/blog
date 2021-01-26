@@ -1,4 +1,4 @@
-package com.zlz.blog.oauth.common.token;
+package com.zlz.blog.common.token;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;

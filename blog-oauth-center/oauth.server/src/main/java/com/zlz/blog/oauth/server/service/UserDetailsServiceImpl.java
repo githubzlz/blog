@@ -1,16 +1,10 @@
 package com.zlz.blog.oauth.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zlz.blog.oauth.common.token.UserVo;
-import com.zlz.blog.oauth.common.user.TbPermission;
-import com.zlz.blog.oauth.common.user.TbRolePermission;
-import com.zlz.blog.oauth.common.user.TbUser;
-import com.zlz.blog.oauth.common.user.TbUserRole;
-import com.zlz.blog.oauth.server.mapper.TbPermissionMapper;
-import com.zlz.blog.oauth.server.mapper.TbRolePermissionMapper;
-import com.zlz.blog.oauth.server.mapper.TbUserMapper;
-import com.zlz.blog.oauth.server.mapper.TbUserRoleMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zlz.blog.client.BlogManageClient;
+import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.exception.BlogException;
+import com.zlz.blog.common.token.UserVo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,8 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.management.relation.Role;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author zhulinzhong
@@ -30,45 +27,23 @@ import java.util.List;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Resource
-    private TbUserMapper tbUserMapper;
-    @Resource
-    private TbUserRoleMapper tbUserRoleMapper;
-    @Resource
-    private TbPermissionMapper tbPermissionMapper;
-    @Resource
-    private TbRolePermissionMapper tbRolePermissionMapper;
+    private BlogManageClient blogManageClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        QueryWrapper<TbUser> query1 = new QueryWrapper<>();
-        query1.eq("username", username);
-        TbUser user = tbUserMapper.selectOne(query1);
 
-        QueryWrapper<TbUserRole> query2 = new QueryWrapper<>();
-        query2.eq("user_id", user.getId());
-        List<TbUserRole> tbUserRoles = tbUserRoleMapper.selectList(query2);
-        List<Long> roles = new ArrayList<>();
-        for (TbUserRole role : tbUserRoles) {
-            roles.add(role.getRoleId());
-        }
-        QueryWrapper<TbRolePermission> query3 = new QueryWrapper<>();
-        query3.in("role_id", roles);
-        List<TbRolePermission> tbRolePermissions = tbRolePermissionMapper.selectList(query3);
-
-        List<Long> permissions = new ArrayList<>();
-        for (TbRolePermission tbRolePermission : tbRolePermissions) {
-            permissions.add(tbRolePermission.getPermissionId());
-        }
-        QueryWrapper<TbPermission> query4 = new QueryWrapper<>();
-        query4.in("id", permissions);
-        List<TbPermission> tbPermissions = tbPermissionMapper.selectList(query4);
+        username = Optional.of(username).orElseThrow(() -> new BlogException("用户名不能为空"));
+        LoginUser loginUser = blogManageClient.getAuthenticationInfo(username);
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
-        for (TbPermission tbPermission : tbPermissions) {
-            GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(tbPermission.getEname());
-            grantedAuthorities.add(grantedAuthority);
-        }
-        return new UserVo(user.getUsername(), user.getPassword(), grantedAuthorities, user.getId());
+        loginUser = Optional.ofNullable(loginUser).orElseThrow(() -> new BlogException("用户信息为空"));
+        loginUser.getSysRoles().forEach(role -> {
+            role.getSysPermissions().forEach(permission ->{
+                GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(permission.getEname());
+                grantedAuthorities.add(grantedAuthority);
+            });
+        });
+        return new UserVo(loginUser.getUsername(), loginUser.getPassword(), grantedAuthorities, loginUser.getId());
     }
 }

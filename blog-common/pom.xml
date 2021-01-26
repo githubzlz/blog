@@ -28,6 +28,12 @@
             <artifactId>fastdfs-base-boot-starter</artifactId>
             <version>${fastdfs.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

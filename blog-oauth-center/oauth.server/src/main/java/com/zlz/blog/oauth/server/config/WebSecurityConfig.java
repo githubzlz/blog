@@ -46,12 +46,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //设置登陆地址为gateway代理的地址
                 .loginPage("/auth/login")
                 .loginProcessingUrl("/oauth/form")
-                .and()
-                .requestCache()
+//                .and()
+//                .requestCache()
 //                .requestCache(new MyRequestCache())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/auth/login","/token/logout","/getPublicKey").permitAll()
+                .antMatchers("/auth/login","/token/logout","/getPublicKey", "/oauth/authorize").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 //允许iframe调用

@@ -8,7 +8,6 @@
     </parent>
 
     <modules>
-        <module>oauth.common</module>
         <module>oauth.client</module>
         <module>oauth.server</module>
     </modules>

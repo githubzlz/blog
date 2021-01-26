@@ -1,6 +1,6 @@
 package com.zlz.blog.oauth.server.config;
 
-import com.zlz.blog.oauth.common.token.UserVo;
+import com.zlz.blog.common.token.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -106,9 +106,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public KeyPair keyPair() {
         KeyStoreKeyFactory factory = new KeyStoreKeyFactory(
                 new ClassPathResource("zlztsb.jks"), "123456".toCharArray());
-        KeyPair keyPair = factory.getKeyPair(
-                "zlzblog", "123456".toCharArray());
-        return keyPair;
+        return factory.getKeyPair("zlzblog", "123456".toCharArray());
     }
 
     /**
