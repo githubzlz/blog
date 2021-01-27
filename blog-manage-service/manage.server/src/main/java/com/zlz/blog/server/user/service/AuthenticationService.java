@@ -16,4 +16,10 @@ public interface AuthenticationService {
      * @return
      */
     List<SysPermission> getPermissionAll();
+
+    /**
+     * 刷新缓存中的权限
+     * @return
+     */
+    boolean refreshPermission();
 }
