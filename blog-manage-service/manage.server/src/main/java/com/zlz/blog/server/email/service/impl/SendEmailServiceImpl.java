@@ -1,14 +1,13 @@
 package com.zlz.blog.server.email.service.impl;
 
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.template.EmailRedisTemplate;
 import com.zlz.blog.common.util.CheckCodeUtil;
 import com.zlz.blog.server.email.service.SendEmailService;
-import com.zlz.blog.server.user.service.LoginUserService;
+import com.zlz.blog.server.oauth.service.LoginUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;

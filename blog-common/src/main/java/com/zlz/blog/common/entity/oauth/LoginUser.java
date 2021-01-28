@@ -1,4 +1,4 @@
-package com.zlz.blog.common.entity.user;
+package com.zlz.blog.common.entity.oauth;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

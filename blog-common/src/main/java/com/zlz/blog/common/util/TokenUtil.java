@@ -1,6 +1,6 @@
 package com.zlz.blog.common.util;
 
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.exception.BlogException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;

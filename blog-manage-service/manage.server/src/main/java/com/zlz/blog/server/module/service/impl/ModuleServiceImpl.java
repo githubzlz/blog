@@ -1,7 +1,7 @@
 package com.zlz.blog.server.module.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.entity.module.Module;
 import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;

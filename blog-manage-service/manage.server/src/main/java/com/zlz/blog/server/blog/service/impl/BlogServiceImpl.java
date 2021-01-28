@@ -8,7 +8,7 @@ import com.zlz.blog.common.entity.blog.BlogContent;
 import com.zlz.blog.common.entity.blog.BlogStatistics;
 import com.zlz.blog.common.entity.blog.BlogTag;
 import com.zlz.blog.common.entity.common.ExcludeItem;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.enums.article.ProvenanceEnum;
 import com.zlz.blog.common.enums.article.VisibleStrategyEnum;
 import com.zlz.blog.common.exception.BlogException;

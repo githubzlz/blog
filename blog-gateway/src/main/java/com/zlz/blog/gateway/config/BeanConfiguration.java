@@ -2,9 +2,6 @@ package com.zlz.blog.gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
 
 /**
  * @author peeterZ

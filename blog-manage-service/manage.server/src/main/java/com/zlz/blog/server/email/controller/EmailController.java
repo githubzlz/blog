@@ -2,7 +2,7 @@ package com.zlz.blog.server.email.controller;
 
 import com.ramostear.captcha.HappyCaptcha;
 import com.ramostear.captcha.support.CaptchaType;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.server.email.service.SendEmailService;
 import org.springframework.web.bind.annotation.*;

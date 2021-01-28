@@ -1,9 +1,9 @@
-package com.zlz.blog.server.user.service.impl;
+package com.zlz.blog.server.oauth.service.impl;
 
-import com.zlz.blog.common.entity.user.SysRole;
+import com.zlz.blog.common.entity.oauth.SysRole;
 import com.zlz.blog.common.response.ResultSet;
-import com.zlz.blog.server.user.mapper.RoleMapper;
-import com.zlz.blog.server.user.service.RoleService;
+import com.zlz.blog.server.oauth.mapper.RoleMapper;
+import com.zlz.blog.server.oauth.service.RoleService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

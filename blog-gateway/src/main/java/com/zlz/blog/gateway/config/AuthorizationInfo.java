@@ -1,7 +1,7 @@
 package com.zlz.blog.gateway.config;
 
 import cn.hutool.json.JSONArray;
-import com.zlz.blog.common.entity.user.SysPermission;
+import com.zlz.blog.common.entity.oauth.SysPermission;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,6 @@ import java.util.Map;
  * @version 2.0 CreateTime:2021-01-26 16:41
  * @description 权限信息
  */
-@Component
 public class AuthorizationInfo {
 
     @Resource
@@ -50,5 +49,11 @@ public class AuthorizationInfo {
                 }
             }
         }
+    }
+
+    public List<String> getWriteUrls() {
+        String s = stringRedisTemplate.opsForValue().get("WRITELIST");
+        JSONArray array = new JSONArray(s);
+        return array.toList(String.class);
     }
 }

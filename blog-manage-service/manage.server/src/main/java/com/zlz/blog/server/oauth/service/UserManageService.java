@@ -1,6 +1,6 @@
-package com.zlz.blog.server.user.service;
+package com.zlz.blog.server.oauth.service;
 
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 
 /**

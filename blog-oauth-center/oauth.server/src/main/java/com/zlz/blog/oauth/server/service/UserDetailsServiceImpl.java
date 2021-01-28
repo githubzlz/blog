@@ -1,8 +1,7 @@
 package com.zlz.blog.oauth.server.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zlz.blog.client.BlogManageClient;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.exception.BlogException;
 import com.zlz.blog.common.token.UserVo;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,8 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.management.relation.Role;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

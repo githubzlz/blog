@@ -1,8 +1,8 @@
-package com.zlz.blog.server.user.controller;
+package com.zlz.blog.server.oauth.controller;
 
-import com.zlz.blog.common.entity.user.SysRole;
+import com.zlz.blog.common.entity.oauth.SysRole;
 import com.zlz.blog.common.response.ResultSet;
-import com.zlz.blog.server.user.service.RoleService;
+import com.zlz.blog.server.oauth.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

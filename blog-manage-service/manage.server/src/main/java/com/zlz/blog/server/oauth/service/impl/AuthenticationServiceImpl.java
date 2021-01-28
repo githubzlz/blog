@@ -1,9 +1,10 @@
-package com.zlz.blog.server.user.service.impl;
+package com.zlz.blog.server.oauth.service.impl;
 
 import cn.hutool.json.JSONArray;
-import com.zlz.blog.common.entity.user.SysPermission;
-import com.zlz.blog.server.user.mapper.AuthenticationMapper;
-import com.zlz.blog.server.user.service.AuthenticationService;
+import com.zlz.blog.common.entity.oauth.SysPermission;
+import com.zlz.blog.server.oauth.mapper.AuthenticationMapper;
+import com.zlz.blog.server.oauth.mapper.PermissionWriteUrlListMapper;
+import com.zlz.blog.server.oauth.service.AuthenticationService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +28,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public List<SysPermission> getPermissionAll() {
         return authenticationMapper.getAllPermission();
-    }
-
-    @Override
-    public boolean refreshPermission() {
-        List<SysPermission> permissionAll = this.getPermissionAll();
-        JSONArray array = new JSONArray(permissionAll);
-        redisTemplate.opsForValue().set("PERMISSIONS",array.toString());
-        return true;
     }
 }

@@ -1,7 +1,7 @@
 package com.zlz.blog.server.blog.service.impl;
 
 import com.zlz.blog.common.entity.blog.BlogStatistics;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;

@@ -1,8 +1,8 @@
-package com.zlz.blog.server.user.controller;
+package com.zlz.blog.server.oauth.controller;
 
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
-import com.zlz.blog.server.user.service.UserManageService;
+import com.zlz.blog.server.oauth.service.UserManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,9 +1,7 @@
-package com.zlz.blog.server.user.mapper;
+package com.zlz.blog.server.oauth.mapper;
 
-import com.zlz.blog.common.entity.user.LoginUser;
-import com.zlz.blog.common.entity.user.SysPermission;
-import com.zlz.blog.common.entity.user.SysRole;
-import com.zlz.blog.common.token.UserVo;
+import com.zlz.blog.common.entity.oauth.SysPermission;
+import com.zlz.blog.common.entity.oauth.SysRole;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

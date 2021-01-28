@@ -3,7 +3,7 @@ package com.zlz.blog.server.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.entity.blog.BlogContent;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;

@@ -1,6 +1,6 @@
 package com.zlz.blog.server.email.service;
 
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;

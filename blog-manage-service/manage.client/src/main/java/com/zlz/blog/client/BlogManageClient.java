@@ -1,7 +1,7 @@
 package com.zlz.blog.client;
 
-import com.zlz.blog.common.entity.user.LoginUser;
-import com.zlz.blog.common.entity.user.SysPermission;
+import com.zlz.blog.common.entity.oauth.LoginUser;
+import com.zlz.blog.common.entity.oauth.SysPermission;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

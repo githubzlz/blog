@@ -1,7 +1,7 @@
-package com.zlz.blog.server.user.mapper;
+package com.zlz.blog.server.oauth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

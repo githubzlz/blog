@@ -1,6 +1,6 @@
-package com.zlz.blog.server.user.service;
+package com.zlz.blog.server.oauth.service;
 
-import com.zlz.blog.common.entity.user.SysPermission;
+import com.zlz.blog.common.entity.oauth.SysPermission;
 
 import java.util.List;
 
@@ -16,10 +16,4 @@ public interface AuthenticationService {
      * @return
      */
     List<SysPermission> getPermissionAll();
-
-    /**
-     * 刷新缓存中的权限
-     * @return
-     */
-    boolean refreshPermission();
 }

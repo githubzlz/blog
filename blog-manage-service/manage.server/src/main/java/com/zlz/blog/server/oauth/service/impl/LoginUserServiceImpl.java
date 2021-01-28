@@ -1,16 +1,16 @@
-package com.zlz.blog.server.user.service.impl;
+package com.zlz.blog.server.oauth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zlz.blog.common.entity.user.LoginUser;
-import com.zlz.blog.common.entity.user.SysRole;
+import com.zlz.blog.common.entity.oauth.LoginUser;
+import com.zlz.blog.common.entity.oauth.SysRole;
 import com.zlz.blog.common.enums.LoginTypeEnum;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.template.EmailRedisTemplate;
 import com.zlz.blog.common.util.EncryptionUtil;
 import com.zlz.blog.common.util.SqlResultUtil;
-import com.zlz.blog.server.user.mapper.AuthenticationMapper;
-import com.zlz.blog.server.user.mapper.LoginUserMapper;
-import com.zlz.blog.server.user.service.LoginUserService;
+import com.zlz.blog.server.oauth.mapper.AuthenticationMapper;
+import com.zlz.blog.server.oauth.mapper.LoginUserMapper;
+import com.zlz.blog.server.oauth.service.LoginUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

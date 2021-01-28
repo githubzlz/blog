@@ -1,13 +1,13 @@
-package com.zlz.blog.server.user.service.impl;
+package com.zlz.blog.server.oauth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zlz.blog.common.entity.user.LoginUser;
+import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.PageUtil;
-import com.zlz.blog.server.user.mapper.LoginUserMapper;
-import com.zlz.blog.server.user.service.UserManageService;
+import com.zlz.blog.server.oauth.mapper.LoginUserMapper;
+import com.zlz.blog.server.oauth.service.UserManageService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -15,7 +15,8 @@ import java.util.Optional;
 
 /**
  * created by zlz on 2021/1/5 20:00
- **/
+ *
+ * @author 12101*/
 @Service
 public class UserManageServiceImpl implements UserManageService {
 

@@ -7,23 +7,30 @@ package com.zlz.blog.gateway.config;
  * @description
  */
 
-import com.zlz.blog.common.entity.user.SysPermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -37,28 +44,31 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
     @Resource
     private AuthorizationInfo authorizationInfo;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
         String path = request.getURI().getPath();
-        PathMatcher pathMatcher = new AntPathMatcher();
-        System.out.println(path);
+
         // 对应跨域的预检请求直接放行
         if (request.getMethod() == HttpMethod.OPTIONS) {
             return Mono.just(new AuthorizationDecision(true));
         }
-//        // 非管理端路径无需鉴权直接放行
-//        if (!pathMatcher.match(AuthConstants.ADMIN_URL_PATTERN, path)) {
-//            return Mono.just(new AuthorizationDecision(true));
-//        }
-//
+
         // token为空拒绝访问
         String token = request.getHeaders().getFirst("Authorization");
         if (StringUtils.isBlank(token)) {
             return Mono.just(new AuthorizationDecision(false));
         }
-//
+
+        // 去redis检查token,redis中不存在的token，即认为是过时的token
+        token = stringRedisTemplate.opsForValue().get("TOKEN:" + token);
+        if(StringUtils.isEmpty(token)){
+            return Mono.just(new AuthorizationDecision(false));
+        }
+
         // 从缓存取资源权限角色关系列表
         Map<String, List<String>> permissions = authorizationInfo.getPermissions();
 
@@ -78,12 +88,12 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
     }
 
     private boolean checkPath(String path, List<String> paths){
-        System.out.println("检查开始：");
+        log.info("检查开始：");
         if(paths == null || paths.isEmpty() || StringUtils.isEmpty(path)){
             return false;
         }
         for (String pPath : paths) {
-            System.out.println("路由："+path+",权限路由："+pPath);
+            log.info("路由："+path+",权限路由："+pPath);
             if("/**".equals(pPath)){
                 return true;
             }
