@@ -75,4 +75,10 @@ public class LoginUser extends BaseEntity<LoginUser> {
      */
     @TableField(exist = false)
     private String checkCode;
+
+    /**
+     * 用户的权限
+     */
+    @TableField(exist = false)
+    private List<String> permissions;
 }

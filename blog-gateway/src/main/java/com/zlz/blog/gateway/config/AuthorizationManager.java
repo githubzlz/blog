@@ -21,6 +21,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
@@ -80,7 +81,6 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
                 .any(role -> {
                     // 根据用户权限获取用户可以通过的资源列表
                     List<String> strings = permissions.get(role);
-                    log.info("角色权限："+ role);
                     return checkPath(path, strings);
                 })
                 .map(AuthorizationDecision::new)
@@ -94,12 +94,10 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
      * @return
      */
     private boolean checkPath(String uri, List<String> paths){
-        log.info("检查开始：");
         if(paths == null || paths.isEmpty() || StringUtils.isEmpty(uri)){
             return false;
         }
         for (String pPath : paths) {
-            log.info("路由："+uri+",权限路由："+pPath);
             if("/**".equals(pPath) || pPath.equals(uri)){
                 return true;
             }
@@ -121,13 +119,11 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
                 if("**".equals(pps[i])){
                     return true;
                 }
-
                 // 匹配到/* 本次检验直接返回验证成功，继续进行之后的检验
                 if("*".equals(pps[i])){
                     matching = true;
                     continue;
                 }
-
                 // 出现不匹配路由地址的直接结束判断
                 matching = pps[i].equals(us[i]);
                 if(!matching){
@@ -135,7 +131,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
                 }
             }
             if(matching){
-                return matching;
+                return true;
             }
         }
         return false;

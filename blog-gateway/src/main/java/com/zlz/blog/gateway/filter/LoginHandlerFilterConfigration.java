@@ -1,22 +1,23 @@
 package com.zlz.blog.gateway.filter;
 
 import cn.hutool.json.JSONObject;
-import com.zlz.blog.common.response.ResultSet;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import sun.plugin2.message.Message;
 
 import javax.annotation.Resource;
 import java.net.URI;
@@ -30,10 +31,13 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Slf4j
-public class LoginHandlerFilterConfigration implements GlobalFilter {
+public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter;
 
     @Value("${self.login.loginUrl}")
     private String loginUrl;
@@ -47,6 +51,14 @@ public class LoginHandlerFilterConfigration implements GlobalFilter {
     @Value("${self.token.frontendUrl}")
     private String frontendUrl;
 
+    private String userInfoUrl = "/login/user";
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
+
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         URI uri = exchange.getRequest().getURI();
@@ -66,6 +78,29 @@ public class LoginHandlerFilterConfigration implements GlobalFilter {
             return fallBack(exchange, token);
         }
         return chain.filter(exchange);
+    }
+
+    /**
+     * 根据授权中心登陆成功之后重定向传递过来的code去请求token
+     * @param code
+     * @return
+     */
+    private String getToken(String code){
+        try {
+            String uri = "http://localhost:8081/oauth/token?grant_type=authorization_code&code="
+                    + code + "&client_id=dev&client_secret=123456&redirect_uri=http://localhost:8080/login/code";
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(uri, null, String.class);
+            String body = stringResponseEntity.getBody();
+            log.info(body);
+            String accessToken = new JSONObject(body).getStr("access_token");
+            stringRedisTemplate.opsForValue().set("TOKEN:Bearer " + accessToken, accessToken, 60*24, TimeUnit.MINUTES);
+            return accessToken;
+        }catch (Exception e){
+            e.printStackTrace();
+            return "获取token失败";
+        }
     }
 
     /**
@@ -95,25 +130,15 @@ public class LoginHandlerFilterConfigration implements GlobalFilter {
     }
 
     /**
-     * 根据授权中心登陆成功之后重定向传递过来的code去请求token
-     * @param code
+     * 结束请求处理，直接返回信息
+     * @param exchange
      * @return
      */
-    private String getToken(String code){
-        try {
-            String uri = "http://localhost:8081/oauth/token?grant_type=authorization_code&code="
-                    + code + "&client_id=dev&client_secret=123456&redirect_uri=http://localhost:8080/login/code";
-
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(uri, null, String.class);
-            String body = stringResponseEntity.getBody();
-            log.info(body);
-            String accessToken = new JSONObject(body).getStr("access_token");
-            stringRedisTemplate.opsForValue().set("TOKEN:Bearer " + accessToken, accessToken, 60*24, TimeUnit.MINUTES);
-            return accessToken;
-        }catch (Exception e){
-            e.printStackTrace();
-            return "获取token失败";
-        }
+    private Mono<Void> fastFinish(ServerWebExchange exchange, String message){
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.OK);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        DataBuffer dataBuffer = response.bufferFactory().allocateBuffer().write(message.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(dataBuffer));
     }
 }
