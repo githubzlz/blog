@@ -77,8 +77,6 @@ public class ResourceServerConfig {
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                    response.getHeaders().set("Access-Control-Allow-Origin", "*");
-                    response.getHeaders().set("Cache-Control", "no-cache");
                     String body = new JSONObject(ResultSet.error("访问未授权,若有权限,请尝试重新登录")).toString();
                     DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                     return response.writeWith(Mono.just(buffer))
@@ -96,8 +94,6 @@ public class ResourceServerConfig {
                 log.info(e.getMessage(), e.getClass());
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                response.getHeaders().set("Access-Control-Allow-Origin", "*");
-                response.getHeaders().set("Cache-Control", "no-cache");
                 String body = new JSONObject(ResultSet.error("TOKEN无效或者已过期,请尝试重新登录")).toString();
                 DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                 return response.writeWith(Mono.just(buffer))

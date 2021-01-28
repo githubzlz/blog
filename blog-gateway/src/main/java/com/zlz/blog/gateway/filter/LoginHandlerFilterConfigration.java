@@ -55,7 +55,7 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     @SneakyThrows
@@ -112,6 +112,7 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
     private Mono<Void> fallBack(ServerWebExchange exchange){
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.FOUND);
+        response.getHeaders();
         response.getHeaders().set("Location", getCodeUrl);
         return exchange.getResponse().setComplete();
     }
