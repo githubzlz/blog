@@ -109,7 +109,7 @@ public class LoginHandlerFilterConfigration implements GlobalFilter {
             String body = stringResponseEntity.getBody();
             log.info(body);
             String accessToken = new JSONObject(body).getStr("access_token");
-            stringRedisTemplate.opsForValue().set("TOKEN:" + accessToken, accessToken, 30, TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set("TOKEN:Bearer " + accessToken, accessToken, 60*24, TimeUnit.MINUTES);
             return accessToken;
         }catch (Exception e){
             e.printStackTrace();

@@ -80,37 +80,62 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
                 .any(role -> {
                     // 根据用户权限获取用户可以通过的资源列表
                     List<String> strings = permissions.get(role);
-                    System.out.println("角色权限："+ role);
+                    log.info("角色权限："+ role);
                     return checkPath(path, strings);
                 })
                 .map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
     }
 
-    private boolean checkPath(String path, List<String> paths){
+    /**
+     * 路由与权限资源匹配检查
+     * @param uri
+     * @param paths
+     * @return
+     */
+    private boolean checkPath(String uri, List<String> paths){
         log.info("检查开始：");
-        if(paths == null || paths.isEmpty() || StringUtils.isEmpty(path)){
+        if(paths == null || paths.isEmpty() || StringUtils.isEmpty(uri)){
             return false;
         }
         for (String pPath : paths) {
-            log.info("路由："+path+",权限路由："+pPath);
-            if("/**".equals(pPath)){
+            log.info("路由："+uri+",权限路由："+pPath);
+            if("/**".equals(pPath) || pPath.equals(uri)){
                 return true;
             }
-            if(pPath.length() >= 4){
-                // 最后三位为 "/**"
-                String substring = pPath.substring(pPath.length() - 3, pPath.length());
-                if("/**".equals(substring) && path.length() >= pPath.length()-1){
-                    // 检查前面的几位是否匹配
-                    pPath = pPath.substring(0, pPath.length() - 3);
-                    String subPath = path.substring(0, pPath.length());
-                    if(pPath.equals(subPath)){
-                        return true;
-                    }
+
+            // 将路由地址拆分，逐级匹配，若是全部匹配成功则返回成功，否则返回失败
+            boolean matching = true;
+            String[] pps = pPath.split("/");
+            String[] us = uri.split("/");
+            // uri的级数小于权限路由的级数 p:"/test" pp:"/test/1"
+            boolean isBreak1 = pps.length > us.length;
+            // 权限路由的最后一级不是模糊匹配，并且uri与权限路由的长度不同，直接结束本次匹配
+            boolean isBreak2 = !"**".equals(pps[pps.length-1]) && pps.length != us.length;
+            if(isBreak1 || isBreak2){
+                break;
+            }
+
+            for (int i = 0; i < us.length; i++) {
+                // 匹配到/** 直接返回验证成功，不再需要检验之后的路由地址
+                if("**".equals(pps[i])){
+                    return true;
+                }
+
+                // 匹配到/* 本次检验直接返回验证成功，继续进行之后的检验
+                if("*".equals(pps[i])){
+                    matching = true;
+                    continue;
+                }
+
+                // 出现不匹配路由地址的直接结束判断
+                matching = pps[i].equals(us[i]);
+                if(!matching){
+                    break;
                 }
             }
-            if(pPath.equals(path)){
-                return true;
+            if(matching){
+                return matching;
             }
         }
         return false;

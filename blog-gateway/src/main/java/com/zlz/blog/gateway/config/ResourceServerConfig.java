@@ -2,7 +2,7 @@ package com.zlz.blog.gateway.config;
 
 import cn.hutool.json.JSONObject;
 import com.zlz.blog.common.response.ResultSet;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -24,22 +24,27 @@ import org.springframework.security.web.server.authorization.ServerAccessDeniedH
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 资源服务器配置
  * @author 12101
  */
-@AllArgsConstructor
 @Configuration
 @EnableWebFluxSecurity
+@Slf4j
 public class ResourceServerConfig {
 
     @Resource
     private final AuthorizationManager authorizationManager;
 
     @Resource
-    private AuthorizationInfo authorizationInfo;
+    private final AuthorizationInfo authorizationInfo;
+
+    public ResourceServerConfig(AuthorizationManager authorizationManager, AuthorizationInfo authorizationInfo) {
+        this.authorizationManager = authorizationManager;
+        this.authorizationInfo = authorizationInfo;
+    }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -68,21 +73,17 @@ public class ResourceServerConfig {
      */
     @Bean
     ServerAccessDeniedHandler accessDeniedHandler() {
-        return (exchange, denied) -> {
-            Mono<Void> mono = Mono.defer(() -> Mono.just(exchange.getResponse()))
-                    .flatMap(response -> {
-                        response.setStatusCode(HttpStatus.OK);
-                        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                        response.getHeaders().set("Access-Control-Allow-Origin", "*");
-                        response.getHeaders().set("Cache-Control", "no-cache");
-                        String body = new JSONObject(ResultSet.error("未授权")).toString();
-                        DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
-                        return response.writeWith(Mono.just(buffer))
-                                .doOnError(error -> DataBufferUtils.release(buffer));
-                    });
-
-            return mono;
-        };
+        return (exchange, denied) -> Mono.defer(() -> Mono.just(exchange.getResponse()))
+                .flatMap(response -> {
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    response.getHeaders().set("Access-Control-Allow-Origin", "*");
+                    response.getHeaders().set("Cache-Control", "no-cache");
+                    String body = new JSONObject(ResultSet.error("未授权")).toString();
+                    DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+                    return response.writeWith(Mono.just(buffer))
+                            .doOnError(error -> DataBufferUtils.release(buffer));
+                });
     }
 
     /**
@@ -90,20 +91,18 @@ public class ResourceServerConfig {
      */
     @Bean
     ServerAuthenticationEntryPoint authenticationEntryPoint() {
-        return (exchange, e) -> {
-            Mono<Void> mono = Mono.defer(() -> Mono.just(exchange.getResponse()))
-                .flatMap(response -> {
-                    response.setStatusCode(HttpStatus.OK);
-                    response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                    response.getHeaders().set("Access-Control-Allow-Origin", "*");
-                    response.getHeaders().set("Cache-Control", "no-cache");
-                    String body = new JSONObject(ResultSet.error("token无效或者已过期")).toString();
-                    DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
-                    return response.writeWith(Mono.just(buffer))
-                            .doOnError(error -> DataBufferUtils.release(buffer));
-                });
-            return mono;
-        };
+        return (exchange, e) -> Mono.defer(() -> Mono.just(exchange.getResponse()))
+            .flatMap(response -> {
+                log.info(e.getMessage(), e.getClass());
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                response.getHeaders().set("Access-Control-Allow-Origin", "*");
+                response.getHeaders().set("Cache-Control", "no-cache");
+                String body = new JSONObject(ResultSet.error("TOKEN无效或者已过期")).toString();
+                DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+                return response.writeWith(Mono.just(buffer))
+                        .doOnError(error -> DataBufferUtils.release(buffer));
+            });
     }
 
 
