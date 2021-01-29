@@ -36,9 +36,6 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter;
-
     @Value("${self.login.loginUrl}")
     private String loginUrl;
     @Value("${self.login.codeUrl}")
@@ -51,8 +48,7 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
     @Value("${self.token.frontendUrl}")
     private String frontendUrl;
 
-    private String userInfoUrl = "/login/user";
-
+    private String logoutUrl = "/blog-oauth/token/logout";
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
@@ -77,7 +73,15 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
             String token = getToken(code);
             return fallBack(exchange, token);
         }
+        if(logoutUrl.equals(path)){
+            removeToken(exchange);
+        }
         return chain.filter(exchange);
+    }
+
+    private void removeToken(ServerWebExchange exchange){
+        String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
+        stringRedisTemplate.delete("TOKEN:" + accessToken);
     }
 
     /**

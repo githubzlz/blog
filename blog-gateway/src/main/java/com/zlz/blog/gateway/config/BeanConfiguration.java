@@ -31,7 +31,7 @@ public class BeanConfiguration {
         // cookie跨域
         config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedMethod("*");
-        config.addAllowedOrigin("*");
+        config.addAllowedOrigin("http://localhost:4200");
         config.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());

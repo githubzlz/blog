@@ -10,29 +10,20 @@ package com.zlz.blog.gateway.config;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 鉴权管理器
@@ -55,6 +46,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
         // 对应跨域的预检请求直接放行
         if (request.getMethod() == HttpMethod.OPTIONS) {
+
             return Mono.just(new AuthorizationDecision(true));
         }
 

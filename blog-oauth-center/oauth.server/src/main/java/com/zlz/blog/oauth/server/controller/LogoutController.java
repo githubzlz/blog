@@ -2,8 +2,8 @@ package com.zlz.blog.oauth.server.controller;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.zlz.blog.common.response.ResultSet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,12 +21,6 @@ import java.util.Map;
 @RestController
 public class LogoutController {
 
-    private ConsumerTokenServices consumerTokenServices;
-    @Autowired
-    public void setConsumerTokenServices(ConsumerTokenServices consumerTokenServices){
-        this.consumerTokenServices = consumerTokenServices;
-    }
-
     private KeyPair keyPair;
     @Autowired
     public void setKeyPair(KeyPair keyPair){
@@ -39,35 +33,21 @@ public class LogoutController {
      * @return
      */
     @RequestMapping("/token/logout")
-    public String logOut(HttpServletRequest request){
+    public ResultSet logOut(HttpServletRequest request){
         try {
-            System.out.println("111");
-            String host = request.getHeader("Host");
-            String authorization = request.getHeader("Authorization");
-            if(authorization == null){
-                return "error";
-            }
-            String[] s = authorization.split(" ");
-            if(s.length != 2){
-                return "error";
-            }
-            String token = s[1];
-            System.out.println(token);
-            boolean b = consumerTokenServices.revokeToken(token);
-            if(!b){
-                return "error";
-            }
-
             //清空session
             request.getSession().invalidate();
-            return "true";
+            return ResultSet.success("退出登陆成功");
         }catch (Exception e){
             e.printStackTrace();
-            return "error";
+            return  ResultSet.error("退出登陆失败");
         }
     }
 
-
+    /**
+     * 获取认证token合法性的公钥
+     * @return
+     */
     @GetMapping("/getPublicKey")
     public Map<String, Object> getPublicKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();

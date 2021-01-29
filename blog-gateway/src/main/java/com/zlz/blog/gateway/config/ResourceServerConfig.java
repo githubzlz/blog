@@ -77,6 +77,10 @@ public class ResourceServerConfig {
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
+                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200");
+                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
+                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
                     String body = new JSONObject(ResultSet.error("访问未授权,若有权限,请尝试重新登录")).toString();
                     DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                     return response.writeWith(Mono.just(buffer))
@@ -94,6 +98,10 @@ public class ResourceServerConfig {
                 log.info(e.getMessage(), e.getClass());
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
+                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200");
+                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
+                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
                 String body = new JSONObject(ResultSet.error("TOKEN无效或者已过期,请尝试重新登录")).toString();
                 DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                 return response.writeWith(Mono.just(buffer))
