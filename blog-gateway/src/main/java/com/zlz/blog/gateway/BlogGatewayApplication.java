@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * nacos config（配置中心），
  * security oauth2.0（鉴权），
  * webFlux（服务）
- * @author zPeet
+ * @author peeterZ
  */
 @SpringBootApplication
 @EnableDiscoveryClient
