@@ -1,9 +1,10 @@
 package com.zlz.blog.gateway.filter;
 
 import cn.hutool.json.JSONObject;
-import lombok.SneakyThrows;
+import com.zlz.blog.common.response.ResultSet;
+import com.zlz.blog.gateway.bean.SelfConfigrationBean;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
@@ -22,12 +22,15 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Resource;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 登录功能处理
  * @author peeterZ
  * @version 2.0 CreateTime:2021-01-21 15:20
- * @description 登录逻辑处理
+ * @description
  */
 @Component
 @Slf4j
@@ -36,49 +39,60 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Value("${self.login.loginUrl}")
-    private String loginUrl;
-    @Value("${self.login.codeUrl}")
-    private String codeUrl;
+    @Resource
+    private SelfConfigrationBean selfConfigration;
 
-    @Value("${self.token.getCodeUrl}")
-    private String getCodeUrl;
-    @Value("${self.token.tokenUrl}")
-    private String tokenUrl;
-    @Value("${self.token.frontendUrl}")
-    private String frontendUrl;
-
-    private String logoutUrl = "/blog-oauth/token/logout";
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
 
-    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         URI uri = exchange.getRequest().getURI();
         String path = uri.getPath();
 
         // 登录请求重定向到授权中心登录
-        if(loginUrl.equals(path)){
-            return fallBack(exchange);
+        if(selfConfigration.loginUri.equals(path)){
+            return fallBackToGetCode(exchange);
         }
 
-        // 获取到token之后回调前端的地址，去告诉前端token
-        if(codeUrl.equals(path)){
+        // 获取token的请求
+        if(selfConfigration.tokenUri.equals(path)){
+            // 根据code去获取token添加到缓存中然后返回给前端
             String query = uri.getQuery();
             String[] split = query.split("=");
             String code = split[1];
-            String token = getToken(code);
-            return fallBack(exchange, token);
+            // 拿到授权码，去获取token
+            String token = tokenHandler(code);
+            String resultMessage;
+            // 接口返回的message处理
+            if(StringUtils.isEmpty(token)){
+                resultMessage = new JSONObject(ResultSet.loginError("登录失败！")).toString();
+            } else {
+                Map<String, String> result = new HashMap<>(1);
+                result.put("token", token);
+                resultMessage = new JSONObject(ResultSet.success("查询成功", result)).toString();
+            }
+            return fastFinish(exchange, resultMessage);
         }
-        if(logoutUrl.equals(path)){
+
+        // 退出登录
+        if(selfConfigration.logoutUri.equals(path)){
+            // gateway清除token，token从缓存中清除之后，使用原有的token无法通过gateway的权限认证
             removeToken(exchange);
+            // 告诉前端oauth的退出地址，由前端将页面转到oauth退出登录页面
+            // 前端使用ajax请求，重定向无法实现页面的跳转，所以将跳转地址告诉前端由前端去处理是否退出oauth的登录
+            String message = new JSONObject(ResultSet.success(selfConfigration.oauthLogoutUrl)).toString();
+            return fastFinish(exchange, message);
         }
         return chain.filter(exchange);
     }
 
+    /**
+     * 移除缓存中的token
+     * @param exchange
+     */
     private void removeToken(ServerWebExchange exchange){
         String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
         stringRedisTemplate.delete("TOKEN:" + accessToken);
@@ -89,21 +103,28 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
      * @param code
      * @return
      */
-    private String getToken(String code){
+    private String tokenHandler(String code){
         try {
-            String uri = "http://localhost:8081/oauth/token?grant_type=authorization_code&code="
-                    + code + "&client_id=dev&client_secret=123456&redirect_uri=http://localhost:8080/login/code";
+            // 拼接请求token的地址和参数
+            String requestTokenAddr = selfConfigration.oauthAddr + "/oauth/token?grant_type=authorization_code"
+                    + "&code=" + code
+                    + "&client_id=" + selfConfigration.clientId
+                    + "&client_secret=" + selfConfigration.clientSecret
+                    + "&redirect_uri=" + selfConfigration.redirectUrl;
 
+            // 请求授权服务获取token
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(uri, null, String.class);
+            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(requestTokenAddr, null, String.class);
             String body = stringResponseEntity.getBody();
             log.info(body);
             String accessToken = new JSONObject(body).getStr("access_token");
+
+            // 将token放入缓存
             stringRedisTemplate.opsForValue().set("TOKEN:Bearer " + accessToken, accessToken, 60*24, TimeUnit.MINUTES);
             return accessToken;
         }catch (Exception e){
             e.printStackTrace();
-            return "获取token失败";
+            return "";
         }
     }
 
@@ -113,24 +134,23 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
      * @param exchange
      * @return
      */
-    private Mono<Void> fallBack(ServerWebExchange exchange){
+    private Mono<Void> fallBackToGetCode(ServerWebExchange exchange){
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.FOUND);
         response.getHeaders();
-        response.getHeaders().set("Location", getCodeUrl);
+        response.getHeaders().set("Location", selfConfigration.getCodeUrl);
         return exchange.getResponse().setComplete();
     }
 
     /**
      * 重定向到前端设置token的url
      * @param exchange
-     * @param token
      * @return
      */
-    private Mono<Void> fallBack(ServerWebExchange exchange, String token){
+    private Mono<Void> fallBackToClient(ServerWebExchange exchange, String url){
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.FOUND);
-        response.getHeaders().set("Location", frontendUrl + "?access_token=" + token);
+        response.getHeaders().set("Location", url);
         return exchange.getResponse().setComplete();
     }
 

@@ -9,7 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 程序入口
  * @author 12101
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
+})
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = { "com.zlz.blog.client" })
 public class OauthApplication {

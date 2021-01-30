@@ -7,6 +7,7 @@ package com.zlz.blog.gateway.config;
  * @description
  */
 
+import com.zlz.blog.gateway.bean.AuthorizationInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 鉴权管理器
- * @author 12101
+ * 鉴权管理器，实现token认证，权限认证处理
+ * @author peeterZ
  */
 @Component
 @AllArgsConstructor
@@ -46,7 +47,6 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
         // 对应跨域的预检请求直接放行
         if (request.getMethod() == HttpMethod.OPTIONS) {
-
             return Mono.just(new AuthorizationDecision(true));
         }
 

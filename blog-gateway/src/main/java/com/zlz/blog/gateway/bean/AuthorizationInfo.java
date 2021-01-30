@@ -1,4 +1,4 @@
-package com.zlz.blog.gateway.config;
+package com.zlz.blog.gateway.bean;
 
 import cn.hutool.json.JSONArray;
 import com.zlz.blog.common.entity.oauth.SysPermission;
@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 保存权限信息的bean
  * @author peeterZ
  * @version 2.0 CreateTime:2021-01-26 16:41
- * @description 权限信息
  */
+@Component
 public class AuthorizationInfo {
 
     @Resource
@@ -32,8 +33,11 @@ public class AuthorizationInfo {
         return permissions;
     }
 
+    /**
+     * 从缓存中获取所有的权限信息
+     * @param permissions
+     */
     public void setPermissions(List<SysPermission> permissions) {
-
         if (permissions != null){
             for (SysPermission permission : permissions) {
                 if(null == permission || StringUtils.isEmpty(permission.getEname()) || StringUtils.isEmpty(permission.getUrl())){
@@ -51,6 +55,10 @@ public class AuthorizationInfo {
         }
     }
 
+    /**
+     * 从缓存中获取白名单
+     * @return
+     */
     public List<String> getWriteUrls() {
         String s = stringRedisTemplate.opsForValue().get("WRITELIST");
         JSONArray array = new JSONArray(s);

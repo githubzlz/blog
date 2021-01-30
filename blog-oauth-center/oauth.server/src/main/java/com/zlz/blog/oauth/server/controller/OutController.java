@@ -19,29 +19,12 @@ import java.util.Map;
  * @description 退出登陆
  */
 @RestController
-public class LogoutController {
+public class OutController {
 
     private KeyPair keyPair;
     @Autowired
     public void setKeyPair(KeyPair keyPair){
         this.keyPair = keyPair;
-    }
-
-    /**
-     * 设置token失效
-     * @param request
-     * @return
-     */
-    @RequestMapping("/token/logout")
-    public ResultSet logOut(HttpServletRequest request){
-        try {
-            //清空session
-            request.getSession().invalidate();
-            return ResultSet.success("退出登陆成功");
-        }catch (Exception e){
-            e.printStackTrace();
-            return  ResultSet.error("退出登陆失败");
-        }
     }
 
     /**

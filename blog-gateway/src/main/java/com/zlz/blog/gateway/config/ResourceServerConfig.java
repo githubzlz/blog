@@ -2,6 +2,7 @@ package com.zlz.blog.gateway.config;
 
 import cn.hutool.json.JSONObject;
 import com.zlz.blog.common.response.ResultSet;
+import com.zlz.blog.gateway.bean.AuthorizationInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -27,8 +29,8 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 资源服务器配置
- * @author 12101
+ * oauht2.0资源服务器配置
+ * @author peeterZ
  */
 @Configuration
 @EnableWebFluxSecurity
@@ -48,18 +50,22 @@ public class ResourceServerConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        // 获取白名单并将list转换为数组
         String[] writeUrls = authorizationInfo.getWriteUrls().toArray(new String[0]);
         http.oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter());
         http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
         http.authorizeExchange()
+                // 白名单全部放行
                 .pathMatchers(writeUrls).permitAll()
+                // 使用自定义的authorizationManager处理请求
                 .anyExchange().access(authorizationManager)
                 .and()
+                // 鉴权不通过的异常处理器
                 .exceptionHandling()
-                //处理未认证
+                // 未认证异常处理（token无效，获取token解析失败）
                 .authenticationEntryPoint(authenticationEntryPoint())
-                // 处理未授权
+                // 未授权异常处理（token的权限验证未通过）
                 .accessDeniedHandler(accessDeniedHandler())
                 .and().csrf().disable();
 
@@ -75,13 +81,8 @@ public class ResourceServerConfig {
     ServerAccessDeniedHandler accessDeniedHandler() {
         return (exchange, denied) -> Mono.defer(() -> Mono.just(exchange.getResponse()))
                 .flatMap(response -> {
-                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
-                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200");
-                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
-                    response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-                    String body = new JSONObject(ResultSet.error("访问未授权,若有权限,请尝试重新登录")).toString();
+                    setCrosHeader(response);
+                    String body = new JSONObject(ResultSet.unauthorizedError("访问未授权,若有权限,请尝试重新登录")).toString();
                     DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                     return response.writeWith(Mono.just(buffer))
                             .doOnError(error -> DataBufferUtils.release(buffer));
@@ -96,20 +97,13 @@ public class ResourceServerConfig {
         return (exchange, e) -> Mono.defer(() -> Mono.just(exchange.getResponse()))
             .flatMap(response -> {
                 log.info(e.getMessage(), e.getClass());
-                response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
-                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200");
-                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
-                response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-                String body = new JSONObject(ResultSet.error("TOKEN无效或者已过期,请尝试重新登录")).toString();
+                setCrosHeader(response);
+                String body = new JSONObject(ResultSet.loginError("TOKEN无效或者已过期,请尝试重新登录")).toString();
                 DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
                 return response.writeWith(Mono.just(buffer))
                         .doOnError(error -> DataBufferUtils.release(buffer));
             });
     }
-
-
 
     /**
      * @return
@@ -127,5 +121,18 @@ public class ResourceServerConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
+    }
+
+    /**
+     * 设置跨域的响应头
+     * @param response
+     */
+    private void setCrosHeader(ServerHttpResponse response){
+        response.setStatusCode(HttpStatus.OK);
+        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
+        response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200");
+        response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
+        response.getHeaders().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
     }
 }

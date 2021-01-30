@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -44,9 +44,6 @@ public class BaseMainController {
                 map.get("scope") : request.getAttribute("scope"));
         String client = (String) (map.containsKey("client_id") ?
                 map.get("client_id") : request.getAttribute("client_id"));
-        List<String> scopeList = new ArrayList<String>();
-        scopeList.add(scope);
-        map.put("scopeList", scopeList);
         model.addAttribute("scope",scope).addAttribute("client", client);
         System.out.println("授权进行中，client："+client);
         return "authorization";
@@ -65,4 +62,15 @@ public class BaseMainController {
         return "oauth_error";
     }
 
+    /**
+     * 退出登录清除session
+     * @param request
+     * @return
+     */
+    @RequestMapping("/token/logout")
+    public void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //清空session
+        request.getSession().invalidate();
+        response.sendRedirect("http://localhost:4200");
+    }
 }
