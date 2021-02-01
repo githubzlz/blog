@@ -5,6 +5,13 @@ import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.gateway.bean.SelfConfigrationBean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -13,6 +20,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -20,8 +28,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
+import javax.net.ssl.SSLContext;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +125,7 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
                     + "&redirect_uri=" + selfConfigration.redirectUrl;
 
             // 请求授权服务获取token
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = new RestTemplate(generateHttpRequestFactory());
             ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(requestTokenAddr, null, String.class);
             String body = stringResponseEntity.getBody();
             log.info(body);
@@ -165,5 +177,25 @@ public class LoginHandlerFilterConfigration implements GlobalFilter, Ordered {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         DataBuffer dataBuffer = response.bufferFactory().allocateBuffer().write(message.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(dataBuffer));
+    }
+
+    /**
+     * https restTemplate
+     * @return
+     * @throws KeyStoreException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     */
+    private HttpComponentsClientHttpRequestFactory generateHttpRequestFactory() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+        TrustStrategy acceptingTrustStrategy = (x509Certificates, authType) -> true;
+        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+        SSLConnectionSocketFactory connectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                new NoopHostnameVerifier());
+        HttpClientBuilder httpClientBuilder = HttpClients.custom();
+        httpClientBuilder.setSSLSocketFactory(connectionSocketFactory);
+        CloseableHttpClient httpClient = httpClientBuilder.build();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setHttpClient(httpClient);
+        return factory;
     }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
  * @description 退出登陆
  */
 @RestController
-public class OutController {
+public class PublicKeyController {
 
     private KeyPair keyPair;
     @Autowired

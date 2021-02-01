@@ -69,7 +69,7 @@ public class BaseMainController {
      */
     @RequestMapping("/token/logout")
     public void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //清空session
+        //清空session;
         request.getSession().invalidate();
         response.sendRedirect("http://localhost:4200");
     }
