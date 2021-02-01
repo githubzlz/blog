@@ -2,6 +2,7 @@ package com.zlz.blog.server.blog.service.impl;
 
 import com.zlz.blog.common.entity.blog.BlogStatistics;
 import com.zlz.blog.common.entity.oauth.LoginUser;
+import com.zlz.blog.common.exception.BlogException;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author peeterZ
@@ -28,13 +30,10 @@ public class BlogStatisticsServiceImpl implements BlogStatisticsService {
     @Override
     public ResultSet<BlogStatistics> insertPublicInfo(BlogStatistics statistics, HttpServletRequest request) {
         //数据检查
-        if (null == statistics || null == statistics.getBlogId()) {
-            return ResultSet.inputError();
-        }
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(loginUser.getUsername())) {
-            return ResultSet.error("未找到登录用户");
-        }
+        Optional.ofNullable(statistics).orElseThrow(() -> new BlogException("缺少关键数据"));
+        Optional.ofNullable(statistics.getBlogId()).orElseThrow(() -> new BlogException("缺少关键数据"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         //补全数据
         statistics.setLastModifiedTime(new Date());

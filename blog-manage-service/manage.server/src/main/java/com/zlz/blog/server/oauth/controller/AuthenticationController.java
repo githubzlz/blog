@@ -5,6 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.entity.oauth.SysPermission;
 import com.zlz.blog.common.response.ResultSet;
+import com.zlz.blog.common.util.TokenUtil;
 import com.zlz.blog.server.config.RedisCacheHandler;
 import com.zlz.blog.server.oauth.service.AuthenticationService;
 import com.zlz.blog.server.oauth.service.LoginUserService;
@@ -49,18 +50,14 @@ public class AuthenticationController {
      */
     @GetMapping("/get/authenticationinfo")
     public ResultSet<LoginUser> getAuthenticationInfoByToken(HttpServletRequest request){
-        String authorization = request.getHeader("Authorization");
-        assert authorization != null;
-        authorization = authorization.substring(7);
-        DecodedJWT decoded = JWT.decode(authorization);
-        String name = decoded.getClaims().get("user_name").asString();
-        LoginUser byUsername = userService.findByUsername(name);
-        if(null != byUsername){
-            byUsername.setPassword(null);
-            byUsername.setSalt(null);
-            return ResultSet.success("获取登录用户信息成功", byUsername);
+        LoginUser loginUser = TokenUtil.getLoginUser(request);
+        loginUser = userService.findByUsername(loginUser.getUsername());
+        if(null != loginUser){
+            loginUser.setPassword(null);
+            loginUser.setSalt(null);
+            return ResultSet.success("获取登录用户信息成功", loginUser);
         }
-        return ResultSet.error("获取登录用户信息失败");
+        return ResultSet.error("获取登录用户信息失败", null);
     }
 
     /**

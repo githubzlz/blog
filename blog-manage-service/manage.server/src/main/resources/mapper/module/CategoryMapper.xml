@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zlz.blog.server.module.mapper.ModuleMapper">
-  <resultMap id="BaseResultMap" type="com.zlz.blog.common.entity.module.Module">
+<mapper namespace="com.zlz.blog.server.module.mapper.CategoryMapper">
+  <resultMap id="BaseResultMap" type="com.zlz.blog.common.entity.category.Category">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="introduction" jdbcType="VARCHAR" property="introduction" />
@@ -14,11 +14,11 @@
     <collection property="menus" column="id" select="selectMenuBlog"/>
   </resultMap>
 
-  <resultMap id="ModuleMenuResultMap" type="com.zlz.blog.common.entity.module.ModuleMenu">
+  <resultMap id="ModuleMenuResultMap" type="com.zlz.blog.common.entity.category.ModuleMenu">
     <id column="mm_id" property="id"/>
     <result column="mm_module_id" property="moduleId"/>
     <result column="mm_name" property="name"/>
-    <collection property="blogList" ofType="com.zlz.blog.common.entity.module.ModuleMenuBlog">
+    <collection property="blogList" ofType="com.zlz.blog.common.entity.category.ModuleMenuBlog">
       <id column="mmb_id" property="id"/>
       <result column="mmb_module_menu_id" property="moduleMenuId"/>
       <result column="mmb_blog_id" property="blogId"/>

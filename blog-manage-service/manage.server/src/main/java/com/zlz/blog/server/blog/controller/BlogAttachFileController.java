@@ -34,7 +34,7 @@ public class BlogAttachFileController {
      * @throws IOException IOException
      */
     @PostMapping("/image/upload")
-    public ResultSet<BlogAttachFile> upload(MultipartFile file) throws IOException, NoSuchAlgorithmException {
+    public ResultSet<String> upload(MultipartFile file) throws IOException, NoSuchAlgorithmException {
         return blogAttachFileService.uploadImage(file);
     }
 

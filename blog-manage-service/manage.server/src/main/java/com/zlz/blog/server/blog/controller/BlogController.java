@@ -1,6 +1,7 @@
 package com.zlz.blog.server.blog.controller;
 
 import com.zlz.blog.common.entity.blog.Blog;
+import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.server.blog.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class BlogController {
      * @return ResultSet
      */
     @PostMapping("/list")
-    public ResultSet<Blog> selectAll(@RequestBody Blog blog, HttpServletRequest request) {
+    public ResultSet<PageInfo<Blog>> selectAll(@RequestBody Blog blog, HttpServletRequest request) {
         return blogService.selectList(blog, request);
     }
 

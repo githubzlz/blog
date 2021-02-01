@@ -1,11 +1,16 @@
 package com.zlz.blog.common.util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.impl.JWTParser;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.exception.BlogException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @author zhulinzhong
@@ -22,7 +27,7 @@ public class TokenUtil {
      * @return
      */
     public static LoginUser getLoginUser(HttpServletRequest request) {
-        String token = "XXXXXXXXXXXXXXX";
+        String token = request.getHeader("Authorization");
         return getLoginUser(token);
     }
 
@@ -38,15 +43,20 @@ public class TokenUtil {
             if (StringUtils.isEmpty(token)) {
                 throw new BlogException("未获取到当前登陆用户");
             }
-
+            assert token != null;
+            token = token.substring(7);
+            DecodedJWT decoded = JWT.decode(token);
+            Map<String, Claim> claims = decoded.getClaims();
+            String name = claims.get("user_name").asString();
+            Long userId = claims.get("user_id").asLong();
             //设置用户信息实体
             LoginUser loginUser = new LoginUser();
-            loginUser.setUsername("zlztest");
-            loginUser.setId(10000L);
+            loginUser.setUsername(name);
+            loginUser.setId(userId);
             return loginUser;
         } catch (Exception e) {
-            log.error("Exception[{}]", e);
-            throw new BlogException("未获取到当前登陆用户");
+            log.error("Exception：", e);
+            return null;
         }
     }
 }

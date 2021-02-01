@@ -4,17 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.entity.blog.BlogContent;
 import com.zlz.blog.common.entity.oauth.LoginUser;
+import com.zlz.blog.common.exception.BlogException;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;
 import com.zlz.blog.server.blog.mapper.BlogContentMapper;
 import com.zlz.blog.server.blog.service.BlogContentService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author peeterZ
@@ -29,14 +30,12 @@ public class BlogContentServiceImpl implements BlogContentService {
 
     @Override
     public ResultSet<BlogContent> insertBody(BlogContent content, HttpServletRequest request) {
+
         //数据检查
-        if (null == content || null == content.getBlogId()) {
-            return ResultSet.inputError();
-        }
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(loginUser.getUsername())) {
-            return ResultSet.error("未找到登录用户");
-        }
+        Optional.ofNullable(content).orElseThrow(() -> new BlogException("缺少必要数据"));
+        Optional.ofNullable(content.getBlogId()).orElseThrow(() -> new BlogException("缺少必要数据"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登陆人信息"));
 
         //补全数据
         content.setCreatedTime(new Date());
@@ -46,20 +45,14 @@ public class BlogContentServiceImpl implements BlogContentService {
 
         //持久层数据处理并返回结果
         return SqlResultUtil.isOneRow(contentMapper.insert(content));
-
     }
 
     @Override
     public ResultSet<Blog> updateBody(BlogContent blogContent, HttpServletRequest request) {
         //数据检查
-        if (null == blogContent.getBlogId()) {
-            return ResultSet.inputError();
-        }
-        //获取登陆人
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(loginUser.getUsername())) {
-            return ResultSet.error();
-        }
+        Optional.ofNullable(blogContent.getBlogId()).orElseThrow(() -> new BlogException("缺少必要数据"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登陆人信息"));
 
         // >> 10 = * 2的10次方
         if (null != blogContent.getContentHtml()) {

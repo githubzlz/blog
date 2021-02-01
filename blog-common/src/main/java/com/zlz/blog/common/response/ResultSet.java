@@ -44,8 +44,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet success() {
-        return new ResultSet(ResultCodeEnum.SUCCESS.getMsg(), ResultCodeEnum.SUCCESS.getCode());
+    public static <T> ResultSet<T> success() {
+        return new ResultSet<>(ResultCodeEnum.SUCCESS.getMsg(), ResultCodeEnum.SUCCESS.getCode());
     }
 
     /**
@@ -54,8 +54,8 @@ public class ResultSet<T> implements Serializable {
      * @param msg msg
      * @return entity
      */
-    public static ResultSet success(String msg) {
-        return new ResultSet(msg, ResultCodeEnum.SUCCESS.getCode());
+    public static <T> ResultSet<T> success(String msg) {
+        return new ResultSet<>(msg, ResultCodeEnum.SUCCESS.getCode());
     }
 
     /**
@@ -64,7 +64,7 @@ public class ResultSet<T> implements Serializable {
      * @param entity entity
      * @return ResultSet
      */
-    public static <T>  ResultSet success(T entity) {
+    public static <T>  ResultSet<T> success(T entity) {
         return new ResultSet<>(ResultCodeEnum.SUCCESS.getMsg(), ResultCodeEnum.SUCCESS.getCode(), entity);
     }
 
@@ -73,7 +73,7 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static <T> ResultSet success(String msg, T entity) {
+    public static <T> ResultSet<T> success(String msg, T entity) {
         return new ResultSet<>(msg, ResultCodeEnum.SUCCESS.getCode(), entity);
     }
 
@@ -82,8 +82,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet error() {
-        return new ResultSet(ResultCodeEnum.ERROR.getMsg(), ResultCodeEnum.ERROR.getCode());
+    public static <T> ResultSet<T> error() {
+        return new ResultSet<>(ResultCodeEnum.ERROR.getMsg(), ResultCodeEnum.ERROR.getCode());
     }
 
     /**
@@ -91,8 +91,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet error(String msg) {
-        return new ResultSet(msg, ResultCodeEnum.ERROR.getCode());
+    public static <T> ResultSet<T> error(String msg) {
+        return new ResultSet<>(msg, ResultCodeEnum.ERROR.getCode());
     }
 
     /**
@@ -101,7 +101,7 @@ public class ResultSet<T> implements Serializable {
      * @param entity entity
      * @return ResultSet
      */
-    public static <T> ResultSet error(T entity) {
+    public static <T> ResultSet<T> error(T entity) {
         return new ResultSet<>(ResultCodeEnum.ERROR.getMsg(), ResultCodeEnum.ERROR.getCode(), entity);
     }
 
@@ -112,7 +112,7 @@ public class ResultSet<T> implements Serializable {
      * @param entity entity
      * @return ResultSet
      */
-    public static <T> ResultSet error(String msg, T entity) {
+    public static <T> ResultSet<T> error(String msg, T entity) {
         return new ResultSet<>(msg, ResultCodeEnum.ERROR.getCode(), entity);
     }
 
@@ -121,8 +121,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet inputError() {
-        return new ResultSet(ResultCodeEnum.INPUT_ERROR.getMsg(), ResultCodeEnum.INPUT_ERROR.getCode());
+    public static <T> ResultSet<T> inputError() {
+        return new ResultSet<>(ResultCodeEnum.INPUT_ERROR.getMsg(), ResultCodeEnum.INPUT_ERROR.getCode());
     }
 
     /**
@@ -131,8 +131,8 @@ public class ResultSet<T> implements Serializable {
      * @param msg msg
      * @return ResultSet
      */
-    public static ResultSet inputError(String msg) {
-        return new ResultSet(msg, ResultCodeEnum.INPUT_ERROR.getCode());
+    public static <T> ResultSet<T> inputError(String msg) {
+        return new ResultSet<>(msg, ResultCodeEnum.INPUT_ERROR.getCode());
     }
 
     /**
@@ -140,7 +140,7 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static <T> ResultSet inputError(T entity) {
+    public static <T> ResultSet<T> inputError(T entity) {
         return new ResultSet<>(ResultCodeEnum.INPUT_ERROR.getMsg(), ResultCodeEnum.INPUT_ERROR.getCode(), entity);
     }
 
@@ -149,7 +149,7 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static <T> ResultSet inputError(String msg, T entity) {
+    public static <T> ResultSet<T> inputError(String msg, T entity) {
         return new ResultSet<>(msg, ResultCodeEnum.INPUT_ERROR.getCode(), entity);
     }
 
@@ -158,8 +158,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet outError() {
-        return new ResultSet(ResultCodeEnum.OUTPUT_ERROR.getMsg(), ResultCodeEnum.OUTPUT_ERROR.getCode());
+    public static <T> ResultSet<T> outError() {
+        return new ResultSet<>(ResultCodeEnum.OUTPUT_ERROR.getMsg(), ResultCodeEnum.OUTPUT_ERROR.getCode());
     }
 
     /**
@@ -167,8 +167,8 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static ResultSet outError(String msg) {
-        return new ResultSet(msg, ResultCodeEnum.OUTPUT_ERROR.getCode());
+    public static <T> ResultSet<T> outError(String msg) {
+        return new ResultSet<>(msg, ResultCodeEnum.OUTPUT_ERROR.getCode());
     }
 
     /**
@@ -176,7 +176,7 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static <T> ResultSet outError(T entity) {
+    public static <T> ResultSet<T> outError(T entity) {
         return new ResultSet<>(ResultCodeEnum.OUTPUT_ERROR.getMsg(), ResultCodeEnum.OUTPUT_ERROR.getCode(), entity);
     }
 
@@ -185,7 +185,7 @@ public class ResultSet<T> implements Serializable {
      *
      * @return ResultSet
      */
-    public static <T> ResultSet outError(String msg, T entity) {
+    public static <T> ResultSet<T> outError(String msg, T entity) {
         return new ResultSet<>(msg, ResultCodeEnum.OUTPUT_ERROR.getCode(), entity);
     }
 
@@ -195,7 +195,7 @@ public class ResultSet<T> implements Serializable {
      * @param resultSet resultSet
      * @return boolean
      */
-    public static boolean isSuccess(ResultSet resultSet) {
+    public static <T> boolean isSuccess(ResultSet<T> resultSet) {
         return null != resultSet && ResultCodeEnum.SUCCESS.getCode().equals(resultSet.getCode());
     }
 
@@ -203,7 +203,7 @@ public class ResultSet<T> implements Serializable {
      * 登陆验证失败
      * @return
      */
-    public static ResultSet loginError(String msg) {
+    public static <T> ResultSet<T> loginError(String msg) {
         return new ResultSet<>(msg, ResultCodeEnum.LOGIN_ERROR.getCode());
     }
 
@@ -211,7 +211,7 @@ public class ResultSet<T> implements Serializable {
      * 鉴权失败,权限不足
      * @return
      */
-    public static ResultSet unauthorizedError(String msg) {
+    public static <T> ResultSet<T> unauthorizedError(String msg) {
         return new ResultSet<>(msg, ResultCodeEnum.UNAUTHORIZED_ERROR.getCode());
     }
 

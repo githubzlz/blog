@@ -1,9 +1,10 @@
-package com.zlz.blog.common.entity.module;
+package com.zlz.blog.common.entity.category;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.entity.common.BaseEntity;
 import lombok.Data;
 
@@ -12,11 +13,11 @@ import java.util.List;
 /**
  * @author peeterZ
  * @version 2.0 CreateTime:2020-12-12 14:14
- * @description 模块
+ * @description 文章种类
  */
 @Data
 @TableName("module")
-public class Module extends BaseEntity<Module> {
+public class Category extends BaseEntity<Category> {
     private static final long serialVersionUID = -3086115441709363100L;
     /**
      * 模块id
@@ -50,8 +51,8 @@ public class Module extends BaseEntity<Module> {
     private Integer isDeleted;
 
     /**
-     * 模块的菜单
+     * 种类对应的文章
      */
     @TableField(exist = false)
-    private List<ModuleMenu> menus;
+    private List<Blog> blogs;
 }

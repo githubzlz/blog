@@ -2,6 +2,7 @@ package com.zlz.blog.server.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.zlz.blog.common.entity.blog.BlogTag;
+import com.zlz.blog.common.exception.BlogException;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.server.blog.mapper.BlogTagMapper;
 import com.zlz.blog.server.blog.service.BlogTagService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author peeterZ
@@ -26,7 +28,8 @@ public class BlogTagServiceImpl implements BlogTagService {
     public ResultSet<BlogTag> insertTagList(Long blogId, List<BlogTag> blogTags, HttpServletRequest request) {
 
         //数据检查
-        if (null == blogId || blogTags.isEmpty()) {
+        Optional.ofNullable(blogId).orElseThrow(() -> new BlogException("缺少关键数据"));
+        if (blogTags.isEmpty()) {
             return ResultSet.inputError();
         }
         blogTags.forEach(tag ->{

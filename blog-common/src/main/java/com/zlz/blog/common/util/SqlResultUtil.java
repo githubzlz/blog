@@ -16,7 +16,7 @@ public class SqlResultUtil {
      * @param row row
      * @return ResultSet
      */
-    public static ResultSet isOneRow(int row) {
+    public static <T> ResultSet<T> isOneRow(int row) {
         if (row == 1) {
             return ResultSet.success();
         }
@@ -31,7 +31,7 @@ public class SqlResultUtil {
      * @param failMsg
      * @return
      */
-    public static ResultSet isOneRow(int row, String successMsg, String failMsg) {
+    public static <T> ResultSet<T> isOneRow(int row, String successMsg, String failMsg) {
         if (row == 1) {
             return ResultSet.success(successMsg);
         }

@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 文章操作service实现类
@@ -38,8 +39,8 @@ import java.util.List;
 @Service
 public class BlogServiceImpl implements BlogService{
 
-    @Resource
-    private BlogAttachFileService blogAttachFileService;
+//    @Resource
+//    private BlogAttachFileService blogAttachFileService;
     @Resource
     private BlogContentService blogContentService;
     @Resource
@@ -52,12 +53,12 @@ public class BlogServiceImpl implements BlogService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResultSet<Blog> insertBlog(Blog blog, HttpServletRequest request) {
-        if (null == blog || StringUtils.isEmpty(blog.getTitle())) {
-            throw new BlogException("插入错误,数据为空");
-        }
 
-        //设置其他默认数据
-        LoginUser user = TokenUtil.getLoginUser(request);
+        // 数据检查
+        Optional.ofNullable(blog).orElseThrow(() -> new BlogException("缺少必要数据"));
+        Optional.ofNullable(blog.getTitle()).orElseThrow(() -> new BlogException("缺少必要数据"));
+        LoginUser user = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         //初始化文章信息
         blog.setUserId(user.getId());
@@ -93,14 +94,13 @@ public class BlogServiceImpl implements BlogService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResultSet<Blog> updateBlog(Blog blog, HttpServletRequest request) {
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(loginUser.getUsername()) || null == blog.getId()) {
-            return ResultSet.inputError();
-        }
+
+        LoginUser user = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", blog.getId())
-                .eq("user_id", loginUser.getId());
+                .eq("user_id", user.getId());
 
         Blog blogArticle = new Blog();
         blogArticle.setSummary(blog.getSummary());
@@ -132,8 +132,9 @@ public class BlogServiceImpl implements BlogService{
 
     @Override
     public ResultSet<Blog> updateBlogTitle(Blog blog, HttpServletRequest request) {
-        //获取登录用户
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
+
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         //创建修改实体
         Blog updateEntity = new Blog();
@@ -151,10 +152,8 @@ public class BlogServiceImpl implements BlogService{
     @Override
     public ResultSet<Blog> queryBlogById(Long id, HttpServletRequest request) {
         //数据检查
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(loginUser.getUsername()) || null == id) {
-            return ResultSet.inputError();
-        }
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         Blog blogArticle = blogMapper.selectDetailById(id, loginUser.getId());
         if (null == blogArticle) {
@@ -165,15 +164,13 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    public ResultSet<Blog> selectList(Blog blog, HttpServletRequest request) {
+    public ResultSet<PageInfo<Blog>> selectList(Blog blog, HttpServletRequest request) {
         //获取当前登录用户
-        LoginUser user = TokenUtil.getLoginUser(request);
-        if (StringUtils.isEmpty(user.getUsername())) {
-            return ResultSet.inputError();
-        }
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
         //设置查询条件
-        blog.setUserId(user.getId());
+        blog.setUserId(loginUser.getId());
 
         //获取并设置筛选条件
         PageInfo<Blog> pageInfo = blog.getPageInfo();
@@ -187,10 +184,8 @@ public class BlogServiceImpl implements BlogService{
     @Override
     public ResultSet<Blog> deleteBlog(Long id, HttpServletRequest request) {
         //数据检查
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (null == id || StringUtils.isEmpty(loginUser.getUsername())) {
-            return ResultSet.inputError("删除失败,未找到文章或者登陆人为空");
-        }
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
+                .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
 
 //        //查询文章是否推荐
 //        QueryWrapper<BlogRecommend> recommendQueryWrapper = new QueryWrapper<>();
@@ -212,11 +207,6 @@ public class BlogServiceImpl implements BlogService{
 
     @Override
     public ResultSet<Blog> revokeDeletedBlog(Long id, HttpServletRequest request) {
-        //数据检查
-        LoginUser loginUser = TokenUtil.getLoginUser(request);
-        if (id == null || StringUtils.isEmpty(loginUser.getUsername())) {
-            return ResultSet.inputError();
-        }
         int i = blogMapper.revokeDelete(id);
         return SqlResultUtil.isOneRow(i);
     }
@@ -233,8 +223,10 @@ public class BlogServiceImpl implements BlogService{
      */
     private void insertArticleContent(Blog blog, HttpServletRequest request) {
         BlogContent blogContent = new BlogContent();
+        // 若是传入的文章正文为空，则只是插入文章id，其他数据为空
         if (null == blog.getBlogContent()) {
             blogContent.setBlogId(blog.getId());
+        // 若是传入的文章正文不为空，则初始化文章正文信息插入
         } else {
             blogContent = blog.getBlogContent();
             blogContent.setBlogId(blog.getId());
@@ -247,8 +239,8 @@ public class BlogServiceImpl implements BlogService{
             blogContent.setHtmlSize(size + "KB");
         }
         //插入
-        ResultSet resultSet = blogContentService.insertBody(blogContent, request);
-        if (!ResultSet.isSuccess(resultSet)) {
+        ResultSet<BlogContent> blogContentResultSet = blogContentService.insertBody(blogContent, request);
+        if (!ResultSet.isSuccess(blogContentResultSet)) {
             throw new BlogException("文章内容插入失败");
         }
     }
@@ -296,17 +288,19 @@ public class BlogServiceImpl implements BlogService{
      * @param blog blog
      */
     private void excludeColumn(PageInfo<Blog> pageInfo, Blog blog) {
+        final String isDeleted = "isDeleted";
+        final String isShow = "isShow";
         if (pageInfo.getExclude() != null && !pageInfo.getExclude().isEmpty()) {
             List<ExcludeItem> exclude = pageInfo.getExclude();
             List<ExcludeItem> needExclude = new ArrayList<>();
             PageInfo<Blog> newPageInfo = new PageInfo<>();
             exclude.forEach(item -> {
-                if ("isDeleted".equals(item.getColumn()) && !StringUtils.isEmpty(item.getValue())) {
+                if (isDeleted.equals(item.getColumn()) && !StringUtils.isEmpty(item.getValue())) {
                     ExcludeItem excludeItem = new ExcludeItem();
                     excludeItem.setColumn("is_deleted");
                     excludeItem.setValue(item.getValue());
                     needExclude.add(excludeItem);
-                } else if ("isShow".equals(item.getColumn()) && !StringUtils.isEmpty(item.getValue())) {
+                } else if (isShow.equals(item.getColumn()) && !StringUtils.isEmpty(item.getValue())) {
                     ExcludeItem excludeItem = new ExcludeItem();
                     excludeItem.setColumn("is_show");
                     excludeItem.setValue(item.getValue());
