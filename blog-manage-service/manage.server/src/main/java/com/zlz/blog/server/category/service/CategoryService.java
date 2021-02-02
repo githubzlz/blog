@@ -1,4 +1,4 @@
-package com.zlz.blog.server.module.service;
+package com.zlz.blog.server.category.service;
 
 import com.zlz.blog.common.entity.category.Category;
 import com.zlz.blog.common.response.PageInfo;
@@ -16,16 +16,22 @@ public interface CategoryService {
 
     /**
      * 分页查询，模糊查询
-     * @param module
+     * @param category
      * @return
      */
-    ResultSet<PageInfo<Category>> getPageList(Category module);
+    ResultSet<PageInfo<Category>> getPageList(Category category);
 
     /**
      * 添加新分类
-     * @param request
-     * @param module
+     * @param category
      * @return
      */
-    ResultSet<Category> createCategory(HttpServletRequest request, Category module);
+    ResultSet<Category> createCategory(Category category);
+
+    /**
+     * 修改分类状态，名称
+     * @param category
+     * @return
+     */
+    ResultSet<Category> updateCategory(Category category);
 }

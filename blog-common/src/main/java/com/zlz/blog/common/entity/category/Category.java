@@ -16,7 +16,7 @@ import java.util.List;
  * @description 文章种类
  */
 @Data
-@TableName("module")
+@TableName("category")
 public class Category extends BaseEntity<Category> {
     private static final long serialVersionUID = -3086115441709363100L;
     /**
@@ -24,6 +24,11 @@ public class Category extends BaseEntity<Category> {
      */
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
+
+    /**
+     * 父级id
+     */
+    private Long parentId;
 
     /**
      * 模块标题
@@ -51,8 +56,19 @@ public class Category extends BaseEntity<Category> {
     private Integer isDeleted;
 
     /**
+     * 层级
+     */
+    private Integer level;
+
+    /**
      * 种类对应的文章
      */
     @TableField(exist = false)
     private List<Blog> blogs;
+
+    /**
+     * 子级数量
+     */
+    @TableField(exist = false)
+    private Integer isLastLevel;
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * created by zlz on 2021/1/6 16:09
  **/
@@ -25,7 +27,7 @@ public class RoleController {
      * @return
      */
     @GetMapping("/list/{userId}")
-    public ResultSet<SysRole> getRoleList(@PathVariable("userId")Long userId){
+    public ResultSet<List<SysRole>> getRoleList(@PathVariable("userId")Long userId){
         return roleService.getRoleList(userId);
     }
 }

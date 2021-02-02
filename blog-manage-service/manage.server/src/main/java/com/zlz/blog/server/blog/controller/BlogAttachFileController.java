@@ -1,6 +1,5 @@
 package com.zlz.blog.server.blog.controller;
 
-import com.zlz.blog.common.entity.blog.BlogAttachFile;
 import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.server.blog.service.BlogAttachFileService;
 import org.springframework.beans.factory.annotation.Autowired;

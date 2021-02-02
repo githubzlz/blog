@@ -35,7 +35,7 @@ public class BlogAttachFileServiceImpl implements BlogAttachFileService {
      * 文件标准大小
      */
     @Value("self.standard.size")
-    private long imgSize;
+    private String imgSize;
 
     @Resource
     private FastdfsUtil fastdfsUtil;
@@ -67,7 +67,7 @@ public class BlogAttachFileServiceImpl implements BlogAttachFileService {
         if(size == 0){
             throw new BlogException("文件上传失败，请重试");
         }
-        float quality = this.imgSize * 1024 / size;
+        float quality = Long.parseLong(imgSize) * 1024 / size;
         if (quality > 1) {
             quality = 1;
         }

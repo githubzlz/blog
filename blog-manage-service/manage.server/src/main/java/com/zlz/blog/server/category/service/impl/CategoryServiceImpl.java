@@ -1,4 +1,4 @@
-package com.zlz.blog.server.module.service.impl;
+package com.zlz.blog.server.category.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zlz.blog.common.entity.category.Category;
@@ -9,8 +9,8 @@ import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.PageUtil;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;
-import com.zlz.blog.server.module.mapper.CategoryMapper;
-import com.zlz.blog.server.module.service.CategoryService;
+import com.zlz.blog.server.category.mapper.CategoryMapper;
+import com.zlz.blog.server.category.service.CategoryService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,7 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         Optional.ofNullable(category).orElseThrow(() -> new BlogException("缺少查询参数"));
         Optional.ofNullable(category.getPageInfo()).orElseThrow(() -> new BlogException("缺少查询参数"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser()).orElseThrow(() -> new BlogException("无法获取登录用户"));
 
+        category.setCreator(loginUser.getId());
+        category.setLevel(Optional.ofNullable(category.getLevel()).orElse(0));
+        category.setParentId(Optional.ofNullable(category.getParentId()).orElse(0L));
         PageInfo<Category> pageInfo = category.getPageInfo();
         IPage<Category> categoryIpage = categoryMapper.selectPage(PageUtil.getIPage(pageInfo), category);
 
@@ -43,10 +47,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResultSet<Category> createCategory(HttpServletRequest request, Category category) {
+    public ResultSet<Category> createCategory(Category category) {
 
         Optional.ofNullable(category).orElseThrow(() -> new BlogException("缺少必要参数"));
-        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request)).orElseThrow(() -> new BlogException("无法获取登录用户"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser()).orElseThrow(() -> new BlogException("无法获取登录用户"));
 
         //补全创建信息
         Date now = new Date();
@@ -58,5 +62,20 @@ public class CategoryServiceImpl implements CategoryService {
         //插入数据
         int insert = categoryMapper.insert(category);
         return SqlResultUtil.isOneRow(insert);
+    }
+
+    @Override
+    public ResultSet<Category> updateCategory(Category category) {
+        Optional.ofNullable(category).orElseThrow(() -> new BlogException("缺少必要参数"));
+        Optional.ofNullable(category.getId()).orElseThrow(() -> new BlogException("分类id不能为空"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser()).orElseThrow(() -> new BlogException("为获取到登陆用户信息"));
+
+        // 补全信息
+        category.setLastModifiedTime(new Date());
+        category.setLastModifier(loginUser.getId());
+
+        // 修改信息
+        int i = categoryMapper.updateById(category);
+        return SqlResultUtil.isOneRow(i);
     }
 }

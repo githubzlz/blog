@@ -8,9 +8,12 @@ import com.zlz.blog.common.entity.oauth.LoginUser;
 import com.zlz.blog.common.exception.BlogException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhulinzhong
@@ -19,6 +22,17 @@ import java.util.Map;
  */
 @Slf4j
 public class TokenUtil {
+
+    /**
+     * 获取用户信息
+     *
+     * @return
+     */
+    public static LoginUser getLoginUser() {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String token = request.getHeader("Authorization");
+        return getLoginUser(token);
+    }
 
     /**
      * 获取用户信息

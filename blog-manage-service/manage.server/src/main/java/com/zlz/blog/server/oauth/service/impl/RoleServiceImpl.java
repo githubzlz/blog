@@ -20,7 +20,7 @@ public class RoleServiceImpl implements RoleService {
     private RoleMapper roleMapper;
 
     @Override
-    public ResultSet<SysRole> getRoleList(Long userId) {
+    public ResultSet<List<SysRole>> getRoleList(Long userId) {
 
         Optional<Long> id = Optional.of(userId);
 
