@@ -1,10 +1,12 @@
 package com.zlz.blog.server.category.service;
 
+import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.entity.category.Category;
 import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 分类管理
@@ -34,4 +36,24 @@ public interface CategoryService {
      * @return
      */
     ResultSet<Category> updateCategory(Category category);
+
+    /**
+     * 通过分类id查询其关联的文章信息
+     * @param categoryId
+     * @return
+     */
+    ResultSet<List<Blog>> queryCategoryBlog(Long categoryId);
+
+    /**
+     * 查询未被分类关联的文章
+     * @return
+     */
+    ResultSet<List<Blog>> queryBlogFreedom();
+
+    /**
+     * 修改种类绑定的文章
+     * @param category
+     * @return
+     */
+    ResultSet<Category> updateCategoryBlog(Category category);
 }

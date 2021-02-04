@@ -61,14 +61,37 @@ public class Category extends BaseEntity<Category> {
     private Integer level;
 
     /**
+     * 分级码
+     */
+    private String levelCode;
+
+    /**
      * 种类对应的文章
      */
     @TableField(exist = false)
     private List<Blog> blogs;
 
     /**
+     * 当前种类对应的文章数量
+     */
+    @TableField(exist = false)
+    private Integer blogAmount;
+
+    /**
+     * 子级种类对应的文章数量
+     */
+    @TableField(exist = false)
+    private Integer blogAmountTotal;
+
+    /**
      * 子级数量
      */
     @TableField(exist = false)
     private Integer isLastLevel;
+
+    /**
+     * 子分类数量（总，包含子子分类）
+     */
+    @TableField(exist = false)
+    private Integer childCategoryAmountTotal;
 }

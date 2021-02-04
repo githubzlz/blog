@@ -117,4 +117,10 @@ public class Blog implements Serializable {
      */
     @TableField(exist = false)
     private PageInfo<Blog> pageInfo;
+
+    /**
+     * 种类绑定关系
+     */
+    @TableField(exist = false)
+    private Long categorBlogId;
 }

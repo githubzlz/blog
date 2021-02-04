@@ -1,5 +1,6 @@
 package com.zlz.blog.server.config;
 
+import com.zlz.blog.common.exception.BlogException;
 import com.zlz.blog.common.response.ResultSet;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,11 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @ControllerAdvice
 @RestController
 @Log4j2
-public class ExceptionController {
+public class BlogExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ResultSet exceptionHandler(Exception e) {
         log.error("发生异常:", e);
-        return ResultSet.error(e.getMessage());
+        if(e instanceof BlogException){
+            return ResultSet.error(e.getMessage());
+        }
+        return ResultSet.error("未知错误，请联系管理员");
     }
 }
