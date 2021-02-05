@@ -1,6 +1,7 @@
 package com.zlz.blog.common.entity.tag;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -21,11 +22,6 @@ public class Tag implements Serializable {
     private Long id;
 
     /**
-     * 类型id
-     */
-    private Long typeId;
-
-    /**
      * 标签名
      */
     private String name;
@@ -38,7 +34,7 @@ public class Tag implements Serializable {
     /**
      * 0停用 1启用
      */
-    private Boolean state;
+    private Integer state;
 
     private Long creator;
 
@@ -48,4 +44,9 @@ public class Tag implements Serializable {
 
     private Date lastModifiedTime;
 
+    /**
+     * 关联id
+     */
+    @TableField(exist = false)
+    private Long tagBlogId;
 }

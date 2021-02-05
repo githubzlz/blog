@@ -3,6 +3,7 @@ package com.zlz.blog.server.blog.service;
 import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;
+import com.zlz.blog.common.vos.blog.BlogVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,7 +22,7 @@ public interface BlogService {
      * @param request request
      * @return ResultSet<Blog>
      */
-    ResultSet<Blog> insertBlog(Blog blog, HttpServletRequest request);
+    ResultSet<Long> insertBlog(Blog blog, HttpServletRequest request);
 
     /**
      * 修改文章
@@ -57,7 +58,7 @@ public interface BlogService {
      * @param request     请求信息
      * @return ResultSet<Blog>
      */
-    ResultSet<PageInfo<Blog>> selectList(Blog blog, HttpServletRequest request);
+    ResultSet<PageInfo<Blog>> selectList(BlogVO blog, HttpServletRequest request);
 
     /**
      * 删除文章(逻辑删除)

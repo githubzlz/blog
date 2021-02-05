@@ -38,6 +38,16 @@ public class CategoryController {
     }
 
     /**
+     * 查询所有文章分类
+     * @param category
+     * @return
+     */
+    @PostMapping("/me/query/list")
+    public ResultSet<List<Category>> getList(@RequestBody(required = false) Category category){
+        return categoryService.getList(category);
+    }
+
+    /**
      * 修改分类数据
      * @param category
      * @return

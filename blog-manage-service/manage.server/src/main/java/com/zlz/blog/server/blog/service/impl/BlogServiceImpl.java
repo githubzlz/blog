@@ -6,9 +6,10 @@ import com.zlz.blog.common.constants.article.ArticleConstants;
 import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.entity.blog.BlogContent;
 import com.zlz.blog.common.entity.blog.BlogStatistics;
-import com.zlz.blog.common.entity.blog.BlogTag;
+import com.zlz.blog.common.entity.category.Category;
 import com.zlz.blog.common.entity.common.ExcludeItem;
 import com.zlz.blog.common.entity.oauth.LoginUser;
+import com.zlz.blog.common.entity.tag.Tag;
 import com.zlz.blog.common.enums.article.ProvenanceEnum;
 import com.zlz.blog.common.enums.article.VisibleStrategyEnum;
 import com.zlz.blog.common.exception.BlogException;
@@ -17,18 +18,23 @@ import com.zlz.blog.common.response.ResultSet;
 import com.zlz.blog.common.util.PageUtil;
 import com.zlz.blog.common.util.SqlResultUtil;
 import com.zlz.blog.common.util.TokenUtil;
+import com.zlz.blog.common.vos.blog.BlogVO;
 import com.zlz.blog.server.blog.mapper.BlogMapper;
 import com.zlz.blog.server.blog.service.*;
+import com.zlz.blog.server.category.service.CategoryService;
+import com.zlz.blog.server.tag.service.TagService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 文章操作service实现类
@@ -46,13 +52,16 @@ public class BlogServiceImpl implements BlogService{
     @Resource
     private BlogStatisticsService blogStatisticsService;
     @Resource
-    private BlogTagService blogTagService;
+    private TagService tagService;
     @Resource
     private BlogMapper blogMapper;
+    @Resource
+    private CategoryService categoryService;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResultSet<Blog> insertBlog(Blog blog, HttpServletRequest request) {
+    public ResultSet<Long> insertBlog(Blog blog, HttpServletRequest request) {
 
         // 数据检查
         Optional.ofNullable(blog).orElseThrow(() -> new BlogException("缺少必要数据"));
@@ -86,9 +95,11 @@ public class BlogServiceImpl implements BlogService{
         insertBlogInfos(blog, request);
 
         //插入文章标签
-        insertBlogTag(blog.getId(), blog.getBlogTag(), request);
+        insertBlogTag(blog.getId(), blog.getTags2());
 
-        return ResultSet.success("文章保存成功");
+        // 插入文章分类关系
+        insertBlogCategory(blog, blog.getCategoryIds());
+        return ResultSet.success("文章保存成功", blog.getId());
     }
 
     @Override
@@ -126,8 +137,26 @@ public class BlogServiceImpl implements BlogService{
 
         BlogContent blogContent = blog.getBlogContent();
         blogContent.setBlogId(blog.getId());
+        ResultSet<Blog> blogResultSet = blogContentService.updateBody(blogContent, request);
+        if(!ResultSet.isSuccess(blogResultSet)){
+            throw new BlogException(blogResultSet.getMessage());
+        }
 
-        return blogContentService.updateBody(blogContent, request);
+        // 修改种类绑定关系
+        Category category = new Category();
+        category.setId(blog.getCategoryIds().get(0));
+        List<Blog> blogs = new ArrayList<>();
+        blogs.add(blog);
+        category.setBlogs(blogs);
+        ResultSet<Category> categoryResultSet = categoryService.updateCategoryBlog(category);
+        if(!ResultSet.isSuccess(categoryResultSet)){
+            throw new BlogException(categoryResultSet.getMessage());
+        }
+
+        // 修改标签绑定关系
+        insertBlogTag(blog.getId(), blog.getTags2());
+
+        return ResultSet.success("修改文章信息成功");
     }
 
     @Override
@@ -164,7 +193,7 @@ public class BlogServiceImpl implements BlogService{
     }
 
     @Override
-    public ResultSet<PageInfo<Blog>> selectList(Blog blog, HttpServletRequest request) {
+    public ResultSet<PageInfo<Blog>> selectList(BlogVO blog, HttpServletRequest request) {
         //获取当前登录用户
         LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser(request))
                 .orElseThrow(() -> new BlogException("未获取到登录用户信息"));
@@ -175,6 +204,11 @@ public class BlogServiceImpl implements BlogService{
         //获取并设置筛选条件
         PageInfo<Blog> pageInfo = blog.getPageInfo();
         excludeColumn(pageInfo, blog);
+
+        // 设置种类的帅选条件
+        if(blog.getCategoryIds().isEmpty()){
+            blog.setCategoryIds(null);
+        }
 
         //返回结果转换并返回消息
         IPage<Blog> iPage = blogMapper.selectPage(PageUtil.getIPage(pageInfo), blog);
@@ -267,17 +301,56 @@ public class BlogServiceImpl implements BlogService{
     }
 
     /**
-     * 插入标签，分类相关信息
+     * 插入标签
      *
      * @param blogId blogId
      * @param blogTags blogTags
      */
-    private void insertBlogTag(Long blogId, List<BlogTag> blogTags, HttpServletRequest request) {
+    private void insertBlogTag(Long blogId, List<Tag> blogTags) {
 
-        ResultSet<BlogTag> resultSet = blogTagService.insertTagList(blogId, blogTags, request);
+        // 插入文章标签
+        List<Tag> insertTags = blogTags.stream().filter(data -> data.getId() == null).collect(Collectors.toList());
+        if(!insertTags.isEmpty()){
+            ResultSet<List<Tag>> tag = tagService.createTag(insertTags);
+            if (!ResultSet.isSuccess(tag)) {
+                throw new BlogException("文章标签插入失败");
+            }
+        }
 
-        if (!ResultSet.isSuccess(resultSet)) {
-            throw new BlogException("文章浏览信息插入失败");
+        // 删除该文章有关的关联关系
+        ResultSet<Tag> resultSet = tagService.deleteRelationWithBlog(blogId);
+
+        // 插入文章标签关联关系
+        ResultSet<List<Tag>> listResultSet = tagService.addRelationWithBlog(blogTags, blogId);
+
+        if (!ResultSet.isSuccess(listResultSet)) {
+            throw new BlogException("文章标签插入失败");
+        }
+    }
+
+    /**
+     * 插入文章分类关系
+     * @param blog
+     * @param categoryIds
+     */
+    private void insertBlogCategory(Blog blog, List<Long> categoryIds) {
+
+        // 数据验证
+        if(null == categoryIds || categoryIds.isEmpty()){
+            return;
+        }
+
+        // 构造数据
+        Category category = new Category();
+        category.setId(categoryIds.get(0));
+        ArrayList<Blog> blogs = new ArrayList<>();
+        blogs.add(blog);
+        category.setBlogs(blogs);
+
+        // 插入文章分类关系
+        ResultSet<Category> categoryResultSet = categoryService.updateCategoryBlog(category);
+        if (!ResultSet.isSuccess(categoryResultSet)) {
+            throw new BlogException("文章分类关联失败");
         }
     }
 

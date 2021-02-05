@@ -24,6 +24,13 @@ public interface CategoryService {
     ResultSet<PageInfo<Category>> getPageList(Category category);
 
     /**
+     * 查询文章分类列表
+     * @param category
+     * @return
+     */
+    ResultSet<List<Category>> getList(Category category);
+
+    /**
      * 添加新分类
      * @param category
      * @return

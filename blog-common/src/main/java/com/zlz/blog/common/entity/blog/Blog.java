@@ -2,6 +2,7 @@ package com.zlz.blog.common.entity.blog;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.zlz.blog.common.entity.comment.Comment;
+import com.zlz.blog.common.entity.tag.Tag;
 import com.zlz.blog.common.response.PageInfo;
 import lombok.Data;
 
@@ -94,17 +95,23 @@ public class Blog implements Serializable {
     @TableField(exist = false)
     private List<BlogAttachFile> attachFiles;
 
-    /**
-     * 文章的标签
-     */
-    @TableField(exist = false)
-    private List<BlogTag> blogTag;
+//    /**
+//     * 文章的标签
+//     */
+//    @TableField(exist = false)
+//    private List<BlogTag> blogTag;
 
     /**
      * 文章的标签
      */
     @TableField(exist = false)
     private List<String> tags;
+
+    /**
+     * 文章的标签
+     */
+    @TableField(exist = false)
+    private List<Tag> tags2;
 
     /**
      * 文章的评论
@@ -123,4 +130,10 @@ public class Blog implements Serializable {
      */
     @TableField(exist = false)
     private Long categorBlogId;
+
+    /**
+     * 种类绑定关系
+     */
+    @TableField(exist = false)
+    private List<Long> categoryIds;
 }

@@ -94,4 +94,10 @@ public class Category extends BaseEntity<Category> {
      */
     @TableField(exist = false)
     private Integer childCategoryAmountTotal;
+
+    /**
+     * 与文章的关联id
+     */
+    @TableField(exist = false)
+    private Long blogCategoryId;
 }

@@ -101,7 +101,7 @@
     </select>
 
     <update id="deleteCategoryAndChildren">
-        UPDATE category SET is_deleted = 1 WHERE level_code LIKE concat(
+        DELETE FROM category WHERE level_code LIKE concat(
             (
                 SELECT level_code FROM (SELECT level_code FROM category c WHERE c.id = #{id}) a
             ), '%')

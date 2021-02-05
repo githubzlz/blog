@@ -33,7 +33,8 @@
       <result property="readings" column="sta_readings"/>
       <result property="collect" column="sta_collect"/>
     </association>
-    <collection property="tags" select="selectBlogTag" column="id"/>
+    <collection property="tags2" select="selectBlogTag" column="id"/>
+    <collection property="categoryIds" select="selectCategoryIds" column="id"/>
   </resultMap>
   <sql id="Base_Column_Blog">
     blog.id,
@@ -88,6 +89,8 @@
     ON blog.id = content.blog_id
     LEFT JOIN blog_statistics sta
     ON blog.id = sta.blog_id
+    LEFT JOIN category_blog cb
+    ON blog.id = cb.blog_id
     <where>
       <if test="blog.pageInfo != null and blog.pageInfo.exclude != null">
         <foreach collection="blog.pageInfo.exclude" item="item">
@@ -96,29 +99,44 @@
       </if>
       <if test="null != blog.title and '' != blog.title">
         AND (
-        blog.title like concat('%',#{blog.title},'%')
-        OR blog.summary like concat('%',#{blog.title},'%')
+        blog.title LIKE concat('%',#{blog.title},'%')
+        OR blog.summary LIKE concat('%',#{blog.title},'%')
         )
       </if>
       <if test="null != blog.blogContent">
         <if test="null != blog.blogContent.contentMd and '' != blog.blogContent.contentMd">
-          AND content.content_md like concat('%',#{blog.blogContent.contentMd},'%')
+          AND content.content_md LIKE concat('%',#{blog.blogContent.contentMd},'%')
         </if>
+      </if>
+      <if test="null != blog.categoryIds">
+        AND cb.category_id IN (
+            <foreach collection="blog.categoryIds" item="categoryId" separator=",">
+              #{categoryId}
+            </foreach>
+        )
       </if>
       AND blog.creator = #{blog.userId}
     </where>
+    ORDER BY blog.created_time DESC
   </select>
 
   <update id="revokeDelete">
     UPDATE blog SET is_deleted = 0 WHERE id = #{id} AND is_deleted = 1;
   </update>
 
-  <select id="selectBlogTag" resultType="java.lang.String">
+  <select id="selectBlogTag" resultType="com.zlz.blog.common.entity.tag.Tag">
     SELECT
-       tag.name
+       tag.name, tag.id
     FROM blog_tag tagi
     LEFT JOIN tag tag
     ON tagi.tag_id = tag.id AND tag.state = 1
     WHERE tagi.blog_id = #{id}
+  </select>
+
+  <select id="selectCategoryIds" resultType="java.lang.Long">
+    SELECT
+      cb.id
+    FROM category_blog cb
+    WHERE cb.blog_id = #{id}
   </select>
 </mapper>

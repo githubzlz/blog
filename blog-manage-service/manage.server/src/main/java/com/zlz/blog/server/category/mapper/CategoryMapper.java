@@ -75,4 +75,11 @@ public interface CategoryMapper extends BaseMapper<Category> {
      * @return
      */
     int deleteCategoryBlogRelation(Long id);
+
+    /**
+     * 插入文章关联关系
+     * @param id
+     * @param category
+     */
+    void insertCategoryBlogRalation(Long id, Category category);
 }

@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,29 @@ public class CategoryServiceImpl implements CategoryService {
         IPage<Category> categoryIpage = categoryMapper.selectPage(PageUtil.getIPage(pageInfo), category);
 
         return ResultSet.success("查询模块列表成功", PageUtil.setPageInfo(categoryIpage, pageInfo));
+    }
+
+
+    @Override
+    public ResultSet<List<Category>> getList(Category category) {
+        Optional.ofNullable(category).orElseThrow(() -> new BlogException("缺少查询参数"));
+        LoginUser loginUser = Optional.ofNullable(TokenUtil.getLoginUser()).orElseThrow(() -> new BlogException("未获取到登录用户"));
+
+        // 生成过滤条件
+        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_deleted", IsDeletedEnum.IS_NOT_DELETED_ENUM.getCode());
+        queryWrapper.eq("creator", loginUser.getId());
+
+        if(null != category.getParentId()){
+            queryWrapper.eq("parent_id", category.getParentId());
+        }
+        if(null != category.getTitle()){
+            queryWrapper.like("title", category.getTitle());
+        }
+
+        List<Category> categories = categoryMapper.selectList(queryWrapper);
+        return ResultSet.success("查询文章列表成功", categories);
+
     }
 
     @Override
@@ -90,8 +114,8 @@ public class CategoryServiceImpl implements CategoryService {
         // 删除
         if(IsDeletedEnum.DELETED_ENUM.getCode().equals(category.getIsDeleted())){
             // 删除子级分类，删除关联关系
-            categoryMapper.deleteCategoryAndChildren(category.getId());
             categoryMapper.deleteCategoryBlogRelation(category.getId());
+            categoryMapper.deleteCategoryAndChildren(category.getId());
             return ResultSet.success("删除成功");
         }else {
             // 修改信息

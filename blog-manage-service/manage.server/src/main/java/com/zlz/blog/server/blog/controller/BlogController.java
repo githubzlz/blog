@@ -3,6 +3,7 @@ package com.zlz.blog.server.blog.controller;
 import com.zlz.blog.common.entity.blog.Blog;
 import com.zlz.blog.common.response.PageInfo;
 import com.zlz.blog.common.response.ResultSet;
+import com.zlz.blog.common.vos.blog.BlogVO;
 import com.zlz.blog.server.blog.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,8 @@ public class BlogController {
      * @param request request
      * @return ResultSet
      */
-    @PostMapping("/create")
-    public ResultSet<Blog> insertArticle(@RequestBody Blog blog, HttpServletRequest request) {
+    @PostMapping("/me/create")
+    public ResultSet<Long> insertArticle(@RequestBody Blog blog, HttpServletRequest request) {
         return blogService.insertBlog(blog, request);
     }
 
@@ -43,7 +44,7 @@ public class BlogController {
      * @param request request
      * @return ResultSet
      */
-    @PostMapping("/update")
+    @PostMapping("/me/update")
     public ResultSet<Blog> updateArticle(@RequestBody Blog blog, HttpServletRequest request) {
         return blogService.updateBlog(blog, request);
     }
@@ -54,7 +55,7 @@ public class BlogController {
      * @param request request
      * @return ResultSet
      */
-    @PostMapping("/titleorsummary")
+    @PostMapping("/me/update/titleorsummary")
     public ResultSet<Blog> updateArticleTitle(@RequestBody Blog blog, HttpServletRequest request) {
         return blogService.updateBlogTitle(blog, request);
     }
@@ -65,8 +66,8 @@ public class BlogController {
      * @param request request
      * @return ResultSet
      */
-    @PostMapping("/list")
-    public ResultSet<PageInfo<Blog>> selectAll(@RequestBody Blog blog, HttpServletRequest request) {
+    @PostMapping("/me/query/pagelist")
+    public ResultSet<PageInfo<Blog>> selectAll(@RequestBody BlogVO blog, HttpServletRequest request) {
         return blogService.selectList(blog, request);
     }
 
@@ -77,7 +78,7 @@ public class BlogController {
      * @param request request
      * @return ResultSet
      */
-    @GetMapping("/queryarticle/{id}")
+    @GetMapping("/me/query/{id}")
     public ResultSet<Blog> selectArticle(@PathVariable("id") Long id, HttpServletRequest request) {
         return blogService.queryBlogById(id, request);
     }
@@ -89,7 +90,7 @@ public class BlogController {
      * @param request request
      * @return ResultSet<Blog>
      */
-    @DeleteMapping("/remove/{id}")
+    @GetMapping("/me/remove/{id}")
     public ResultSet<Blog> deleteArticle(@PathVariable("id") Long id, HttpServletRequest request) {
         return blogService.deleteBlog(id, request);
     }
@@ -101,7 +102,7 @@ public class BlogController {
      * @param request request
      * @return ResultSet<Blog>
      */
-    @GetMapping("/remove/revoke/{id}")
+    @GetMapping("/me/revoke/{id}")
     public ResultSet<Blog> revokeDeletedArticle(@PathVariable("id") Long id, HttpServletRequest request) {
         return blogService.revokeDeletedBlog(id, request);
     }

@@ -3,6 +3,7 @@ package com.zlz.blog.server.blog.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zlz.blog.common.entity.blog.Blog;
+import com.zlz.blog.common.vos.blog.BlogVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,7 +31,7 @@ public interface BlogMapper extends BaseMapper<Blog> {
      * @param blog blog
      * @return IPage
      */
-    IPage<Blog> selectPage(IPage<Blog> page, @Param("blog") Blog blog);
+    IPage<Blog> selectPage(IPage<Blog> page, @Param("blog") BlogVO blog);
 
     int revokeDelete(Long id);
 }
