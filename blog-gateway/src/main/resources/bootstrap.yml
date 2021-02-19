@@ -6,7 +6,7 @@ spring:
       config:
         namespace: blog
         file-extension: yml
-        server-addr: 192.168.236.1:8848
+        server-addr: 39.104.125.236:8848
       discovery:
         namespace: blog
-        server-addr: 192.168.236.1:8848
+        server-addr: 39.104.125.236:8848
