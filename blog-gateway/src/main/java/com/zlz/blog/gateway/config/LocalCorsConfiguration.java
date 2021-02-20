@@ -27,7 +27,7 @@ public class LocalCorsConfiguration {
         // cookie跨域
         config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedMethod("*");
-        config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedOrigin("https://www.zlztsb.com:4443");
         config.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
