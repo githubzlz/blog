@@ -22,8 +22,10 @@ import java.util.Map;
 @SessionAttributes({ "authorizationRequest" })
 public class BaseMainController {
 
-    @Value("${gateway.server.url}")
-    private String gatewayServerUrl;
+    @Value("${loginformurl}")
+    private String loginformurl;
+    @Value("${gatewayurl}")
+    private String gatewayurl;
 
     @GetMapping("/auth/login")
     public String loginPage(Model model, HttpServletRequest request){
@@ -32,7 +34,7 @@ public class BaseMainController {
         }else{
             model.addAttribute("error", "error");
         }
-        String formAction = gatewayServerUrl.concat("oauth/form");
+        String formAction = loginformurl.concat("oauth/form");
         model.addAttribute("formAction",formAction);
         return "login";
     }
@@ -71,6 +73,6 @@ public class BaseMainController {
     public void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //清空session;
         request.getSession().invalidate();
-        response.sendRedirect("http://localhost:4200");
+        response.sendRedirect(gatewayurl);
     }
 }
