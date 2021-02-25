@@ -1,11 +1,14 @@
 package com.zlz.blog.gateway.config;
 
+import com.zlz.blog.gateway.bean.SelfConfigrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.util.pattern.PathPatternParser;
+
+import javax.annotation.Resource;
 
 /**
  * 允许跨域的配置
@@ -15,6 +18,9 @@ import org.springframework.web.util.pattern.PathPatternParser;
  */
 @Configuration
 public class LocalCorsConfiguration {
+
+    @Resource
+    private SelfConfigrationBean selfConfigration;
 
     /**
      * 配置跨域
@@ -27,7 +33,7 @@ public class LocalCorsConfiguration {
         // cookie跨域
         config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedMethod("*");
-        config.addAllowedOrigin("https://www.zlztsb.com:4443");
+        config.addAllowedOrigin(selfConfigration.redirectUrl);
         config.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
