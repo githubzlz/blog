@@ -45,7 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 //设置登陆地址为gateway代理的地址
                 .loginPage("/oauth-center/auth/login")
-                .loginProcessingUrl("/oauth-center/oauth/form")
+                .loginProcessingUrl("/oauth/form")
 //                .and()
 //                .requestCache()
 //                .requestCache(new MyRequestCache())
