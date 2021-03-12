@@ -44,8 +44,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .formLogin()
                 //设置登陆地址为gateway代理的地址
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/oauth/form")
+                .loginPage("/oauth-center/auth/login")
+                .loginProcessingUrl("/oauth-center/oauth/form")
 //                .and()
 //                .requestCache()
 //                .requestCache(new MyRequestCache())
