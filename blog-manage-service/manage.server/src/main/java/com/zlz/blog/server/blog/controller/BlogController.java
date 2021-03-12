@@ -108,9 +108,9 @@ public class BlogController {
         return blogService.revokeDeletedBlog(id, request);
     }
 
-    public ResultSet<List<Blog>> getRecommendBlogList(@RequestBody Blog blog){
-
-    }
+//    public ResultSet<List<Blog>> getRecommendBlogList(@RequestBody Blog blog){
+//
+//    }
 
 //    /**
 //     * 查询所有未推荐的文章
