@@ -64,4 +64,7 @@ public class SelfConfigrationBean {
      */
     @Value("${self.oauth.logoutUrl}")
     public String oauthLogoutUrl;
+
+    @Value("${self.gateway.cros-url}")
+    public String originUrl;
 }

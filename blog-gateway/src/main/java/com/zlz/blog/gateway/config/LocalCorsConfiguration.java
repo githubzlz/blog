@@ -33,7 +33,7 @@ public class LocalCorsConfiguration {
         // cookie跨域
         config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedMethod("*");
-        config.addAllowedOrigin(selfConfigration.redirectUrl);
+        config.addAllowedOrigin(selfConfigration.originUrl);
         config.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
