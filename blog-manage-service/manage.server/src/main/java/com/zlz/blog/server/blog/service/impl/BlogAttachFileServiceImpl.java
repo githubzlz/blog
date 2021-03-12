@@ -34,7 +34,7 @@ public class BlogAttachFileServiceImpl implements BlogAttachFileService {
     /**
      * 文件标准大小
      */
-    @Value("self.standard.size")
+    @Value("${self.standard.size}")
     private String imgSize;
 
     @Resource

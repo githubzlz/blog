@@ -59,8 +59,10 @@ public class BeanRegister {
     @Bean
     @Primary
     public FastdfsConfig getFastdfsConfig(){
+//        FastdfsConfig fastdfsConfig = new FastdfsConfig();
+//        fastdfsConfig.setConfigFile("/dev/blog-server/fdfs_client.conf");
         FastdfsConfig fastdfsConfig = new FastdfsConfig();
-        fastdfsConfig.setConfigFile("/dev/blog-server/fdfs_client.conf");
+        fastdfsConfig.setConfigFile("E:\\mywebsite\\后台微服务\\blog\\blog-manage-service\\manage.server\\src\\main\\resources\\fdfs_client.conf");
         return fastdfsConfig;
     }
 

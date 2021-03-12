@@ -38,7 +38,17 @@ public class WebBanner implements Serializable {
     /**
      * 0:no 1:yes
      */
-    private Byte isShow;
+    private Integer isShow;
+
+    /**
+     * 排序
+     */
+    private Integer priority;
+
+    /**
+     * 类型
+     */
+    private Integer type;
 
     private Long creator;
 

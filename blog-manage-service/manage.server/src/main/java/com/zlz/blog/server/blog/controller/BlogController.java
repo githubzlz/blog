@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 文章操作的控制器层
@@ -105,6 +106,10 @@ public class BlogController {
     @GetMapping("/me/revoke/{id}")
     public ResultSet<Blog> revokeDeletedArticle(@PathVariable("id") Long id, HttpServletRequest request) {
         return blogService.revokeDeletedBlog(id, request);
+    }
+
+    public ResultSet<List<Blog>> getRecommendBlogList(@RequestBody Blog blog){
+
     }
 
 //    /**
